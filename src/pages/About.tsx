@@ -51,7 +51,7 @@ export default function About() {
             <div className="opacity-0 animate-slide-in-left" style={{ animationDelay: "0.1s" }}>
               <SectionHeading title="Our Vision" align="left" />
               <p className="text-muted-foreground">
-                A Kenya where every community thrives through sustainable agriculture, vibrant arts, and preserved cultural heritage — proud of its roots and confident in its future.
+                Recreating proud, resilient, and thriving local communities. Pride comes from a strong sense of identity and cultural heritage. Resilience comes from communities that can adapt and sustain themselves through their own knowledge and collaboration.
               </p>
             </div>
             <div className="opacity-0 animate-slide-up" style={{ animationDelay: "0.3s" }}>
