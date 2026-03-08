@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { StatsCounter } from "@/components/shared/StatsCounter";
-import { CategoryCard } from "@/components/shared/CategoryCard";
 import { Layout } from "@/components/layout/Layout";
 import { PROGRAMS, SHOP_CATEGORIES } from "@/lib/constants";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
+import { useParallax } from "@/hooks/useParallax";
 import { Play, ArrowRight, Sprout, Palette, Drama } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const STATS = [
   { value: 2500, label: "Volunteers" },
@@ -30,24 +32,37 @@ const FEATURED_PRODUCTS = [
 
 export default function Index() {
   const heroRef = useScrollReveal();
+  const heroParallax = useParallax(0.2);
+  const pillarsStagger = useStaggerReveal(3, 150);
+  const sectorsStagger = useStaggerReveal(SECTORS.length, 150);
+  const productsStagger = useStaggerReveal(FEATURED_PRODUCTS.length, 100);
 
   return (
     <Layout>
       {/* Hero */}
       <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-5" />
+        <div
+          ref={heroParallax.ref}
+          className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-5"
+          style={{ transform: `translateY(${heroParallax.offset}px)` }}
+        />
+        {/* Floating decorative elements */}
+        <div className="absolute top-20 left-10 text-6xl opacity-10 animate-float">🌱</div>
+        <div className="absolute bottom-32 right-16 text-5xl opacity-10 animate-float" style={{ animationDelay: "1s" }}>🎨</div>
+        <div className="absolute top-40 right-32 text-4xl opacity-10 animate-float" style={{ animationDelay: "2s" }}>🎭</div>
+
         <div className="container relative z-10 text-center py-20 px-4">
-          <div ref={heroRef.ref} className={`opacity-0 ${heroRef.isVisible ? "animate-fade-up opacity-100" : ""}`}>
-            <span className="inline-block bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+          <div ref={heroRef.ref}>
+            <span className="inline-block bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-6 opacity-0 animate-blur-in" style={{ animationDelay: "0.1s" }}>
               From Our Roots, We Rise 🌱
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight mb-6 max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight mb-6 max-w-4xl mx-auto opacity-0 animate-hero-text" style={{ animationDelay: "0.2s" }}>
               Recreating Proud, Resilient, <span className="text-primary">Thriving</span> Local Communities
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 opacity-0 animate-blur-in" style={{ animationDelay: "0.5s" }}>
               A Kenyan community-driven movement celebrating local agriculture, arts, and culture. Together, we grow.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center opacity-0 animate-slide-up" style={{ animationDelay: "0.7s" }}>
               <Link to="/membership">
                 <Button size="lg" className="text-base px-8">
                   Join the Network <ArrowRight className="ml-2 h-4 w-4" />
@@ -75,14 +90,20 @@ export default function Index() {
             title="Rooted in Community"
             subtitle="Inspired by the Harambee spirit, we unite agriculture, arts, and culture to build thriving local economies."
           />
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div ref={pillarsStagger.ref} className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
               { icon: "🌱", title: "Agriculture", desc: "Sustainable farming, food security, and indigenous knowledge preservation." },
               { icon: "🎭", title: "Culture", desc: "Heritage documentation, language preservation, and traditional arts." },
               { icon: "🎨", title: "Arts", desc: "Creative economy, artist empowerment, and community expression." },
-            ].map((pillar) => (
-              <div key={pillar.title} className="text-center p-6 rounded-xl bg-background hover-lift">
-                <div className="text-5xl mb-4">{pillar.icon}</div>
+            ].map((pillar, i) => (
+              <div
+                key={pillar.title}
+                className={cn(
+                  "text-center p-6 rounded-xl bg-background hover-lift opacity-0",
+                  pillarsStagger.visibleItems[i] && "animate-stagger-in"
+                )}
+              >
+                <div className="text-5xl mb-4 animate-float" style={{ animationDelay: `${i * 0.7}s` }}>{pillar.icon}</div>
                 <h3 className="font-heading font-semibold text-xl mb-2">{pillar.title}</h3>
                 <p className="text-muted-foreground text-sm">{pillar.desc}</p>
               </div>
@@ -98,10 +119,15 @@ export default function Index() {
             title="Become Part of the Movement"
             subtitle="Choose your path and join a network of changemakers transforming Kenya from the roots."
           />
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {SECTORS.map((sector) => (
+          <div ref={sectorsStagger.ref} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {SECTORS.map((sector, i) => (
               <Link key={sector.href} to={sector.href}>
-                <div className="group relative overflow-hidden rounded-2xl border-2 border-border p-8 text-center transition-all duration-300 hover:border-primary hover:-translate-y-2 hover:shadow-2xl bg-card">
+                <div
+                  className={cn(
+                    "group relative overflow-hidden rounded-2xl border-2 border-border p-8 text-center transition-all duration-300 hover:border-primary hover:-translate-y-2 hover:shadow-2xl bg-card opacity-0",
+                    sectorsStagger.visibleItems[i] && "animate-stagger-in"
+                  )}
+                >
                   <div className="text-5xl mb-4">{sector.icon}</div>
                   <h3 className="font-heading font-bold text-xl mb-2 group-hover:text-primary transition-colors">{sector.title}</h3>
                   <p className="text-muted-foreground text-sm mb-4">{sector.description}</p>
@@ -153,11 +179,17 @@ export default function Index() {
             title="From Our Community"
             subtitle="Discover handcrafted art, artifacts, and creations by local artists."
           />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mb-8">
-            {FEATURED_PRODUCTS.map((product) => (
-              <div key={product.id} className="group rounded-xl border bg-card overflow-hidden hover-lift">
+          <div ref={productsStagger.ref} className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mb-8">
+            {FEATURED_PRODUCTS.map((product, i) => (
+              <div
+                key={product.id}
+                className={cn(
+                  "group rounded-xl border bg-card overflow-hidden hover-lift opacity-0",
+                  productsStagger.visibleItems[i] && "animate-stagger-in"
+                )}
+              >
                 <div className="aspect-square bg-muted flex items-center justify-center">
-                  <span className="text-4xl opacity-30">🎨</span>
+                  <span className="text-4xl opacity-30 group-hover:scale-110 transition-transform duration-300">🎨</span>
                 </div>
                 <div className="p-4">
                   <h4 className="font-medium text-sm mb-1">{product.name}</h4>
