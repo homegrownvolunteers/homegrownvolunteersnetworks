@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { Menu, X, ShoppingCart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { NAV_LINKS, SECTOR_LINKS, SITE_NAME } from "@/lib/constants";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [sectorsOpen, setSectorsOpen] = useState(false);
+  const [mobileSectorsOpen, setMobileSectorsOpen] = useState(false);
   const location = useLocation();
   const { itemCount } = useCart();
+
+  const isSectorActive = SECTOR_LINKS.some((s) => location.pathname === s.href);
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b">
@@ -22,7 +26,62 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-1">
-          {NAV_LINKS.map((link) => (
+          {NAV_LINKS.slice(0, 3).map((link) => (
+            <Link
+              key={link.href}
+              to={link.href}
+              className={cn(
+                "px-3 py-2 text-sm font-medium rounded-md transition-colors hover:text-primary hover:bg-primary/5",
+                location.pathname === link.href && "text-primary bg-primary/10"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          {/* Sectors Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setSectorsOpen(true)}
+            onMouseLeave={() => setSectorsOpen(false)}
+          >
+            <button
+              className={cn(
+                "px-3 py-2 text-sm font-medium rounded-md transition-colors hover:text-primary hover:bg-primary/5 flex items-center gap-1",
+                isSectorActive && "text-primary bg-primary/10"
+              )}
+              onClick={() => setSectorsOpen(!sectorsOpen)}
+            >
+              Our Sectors
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", sectorsOpen && "rotate-180")} />
+            </button>
+
+            <div
+              className={cn(
+                "absolute top-full left-0 mt-1 w-56 rounded-xl border bg-popover shadow-xl p-2 transition-all duration-200 origin-top",
+                sectorsOpen
+                  ? "opacity-100 scale-100 translate-y-0"
+                  : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+              )}
+            >
+              {SECTOR_LINKS.map((sector) => (
+                <Link
+                  key={sector.href}
+                  to={sector.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary",
+                    location.pathname === sector.href && "text-primary bg-primary/10"
+                  )}
+                  onClick={() => setSectorsOpen(false)}
+                >
+                  <span className="text-lg">{sector.icon}</span>
+                  {sector.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {NAV_LINKS.slice(3).map((link) => (
             <Link
               key={link.href}
               to={link.href}
@@ -60,7 +119,51 @@ export function Navbar() {
       {open && (
         <div className="lg:hidden border-t bg-background animate-slide-in-right">
           <nav className="container py-4 flex flex-col gap-1">
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.slice(0, 3).map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "px-4 py-3 rounded-md text-sm font-medium transition-colors hover:bg-primary/5",
+                  location.pathname === link.href && "text-primary bg-primary/10"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Mobile Sectors Collapsible */}
+            <button
+              onClick={() => setMobileSectorsOpen(!mobileSectorsOpen)}
+              className={cn(
+                "px-4 py-3 rounded-md text-sm font-medium transition-colors hover:bg-primary/5 flex items-center justify-between",
+                isSectorActive && "text-primary bg-primary/10"
+              )}
+            >
+              Our Sectors
+              <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", mobileSectorsOpen && "rotate-180")} />
+            </button>
+            {mobileSectorsOpen && (
+              <div className="pl-4 flex flex-col gap-1 animate-fade-in">
+                {SECTOR_LINKS.map((sector) => (
+                  <Link
+                    key={sector.href}
+                    to={sector.href}
+                    onClick={() => { setOpen(false); setMobileSectorsOpen(false); }}
+                    className={cn(
+                      "px-4 py-2.5 rounded-md text-sm font-medium transition-colors hover:bg-primary/5 flex items-center gap-2",
+                      location.pathname === sector.href && "text-primary bg-primary/10"
+                    )}
+                  >
+                    <span>{sector.icon}</span>
+                    {sector.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {NAV_LINKS.slice(3).map((link) => (
               <Link
                 key={link.href}
                 to={link.href}

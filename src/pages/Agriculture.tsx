@@ -6,15 +6,34 @@ import { AGRICULTURE_SUBCATEGORIES, MEMBERSHIP_TIERS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Download } from "lucide-react";
+import { useParallax } from "@/hooks/useParallax";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
+import { cn } from "@/lib/utils";
 
 export default function Agriculture() {
+  const heroParallax = useParallax(0.15);
+  const catStagger = useStaggerReveal(AGRICULTURE_SUBCATEGORIES.length, 60);
+  const resourceStagger = useStaggerReveal(4, 150);
+
+  const resources = [
+    { title: "Organic Farming Guide", desc: "A comprehensive guide to transitioning to organic methods." },
+    { title: "Seed Saving Handbook", desc: "How to save, store, and share indigenous seeds." },
+    { title: "Kitchen Garden Starter", desc: "Start growing food at home with minimal space." },
+    { title: "Climate Smart Agriculture", desc: "Adapting farming practices to changing weather patterns." },
+  ];
+
   return (
     <Layout>
-      <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-        <div className="container text-center">
-          <span className="text-6xl mb-4 block">🌱</span>
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">Agriculture Network</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10 relative overflow-hidden">
+        <div
+          ref={heroParallax.ref}
+          className="absolute inset-0 opacity-5"
+          style={{ transform: `translateY(${heroParallax.offset}px)` }}
+        />
+        <div className="container text-center relative z-10">
+          <span className="text-6xl mb-4 block animate-float">🌱</span>
+          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 opacity-0 animate-hero-text">Agriculture Network</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 animate-blur-in" style={{ animationDelay: "0.2s" }}>
             Connecting farmers, experts, and advocates to build sustainable food systems and preserve agricultural heritage.
           </p>
         </div>
@@ -23,9 +42,11 @@ export default function Agriculture() {
       <section className="py-20">
         <div className="container">
           <SectionHeading title="Agricultural Fields" subtitle="Find your area of expertise or interest." />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          <div ref={catStagger.ref} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {AGRICULTURE_SUBCATEGORIES.map((cat, i) => (
-              <CategoryCard key={cat} title={cat} delay={i} />
+              <div key={cat} className={cn("opacity-0", catStagger.visibleItems[i] && "animate-stagger-in")}>
+                <CategoryCard title={cat} delay={0} />
+              </div>
             ))}
           </div>
         </div>
@@ -45,18 +66,18 @@ export default function Agriculture() {
         </div>
       </section>
 
-      {/* Resources */}
       <section className="py-20">
         <div className="container max-w-4xl">
           <SectionHeading title="Resources" subtitle="Free guides and tools for farmers." />
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { title: "Organic Farming Guide", desc: "A comprehensive guide to transitioning to organic methods." },
-              { title: "Seed Saving Handbook", desc: "How to save, store, and share indigenous seeds." },
-              { title: "Kitchen Garden Starter", desc: "Start growing food at home with minimal space." },
-              { title: "Climate Smart Agriculture", desc: "Adapting farming practices to changing weather patterns." },
-            ].map((resource) => (
-              <div key={resource.title} className="flex items-start gap-4 p-4 rounded-lg border bg-card hover-lift">
+          <div ref={resourceStagger.ref} className="grid md:grid-cols-2 gap-6">
+            {resources.map((resource, i) => (
+              <div
+                key={resource.title}
+                className={cn(
+                  "flex items-start gap-4 p-4 rounded-lg border bg-card hover-lift opacity-0",
+                  resourceStagger.visibleItems[i] && "animate-stagger-in"
+                )}
+              >
                 <Download className="h-5 w-5 text-primary mt-1 shrink-0" />
                 <div>
                   <h4 className="font-medium">{resource.title}</h4>
