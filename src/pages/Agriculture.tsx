@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { CategoryCard } from "@/components/shared/CategoryCard";
 import { MembershipTierCard } from "@/components/shared/MembershipTierCard";
+import { SubcategoryDetailModal } from "@/components/shared/SubcategoryDetailModal";
 import { AGRICULTURE_SUBCATEGORIES, MEMBERSHIP_TIERS } from "@/lib/constants";
+import { AGRICULTURE_DETAILS } from "@/lib/subcategory-details";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Download } from "lucide-react";
@@ -14,6 +17,7 @@ export default function Agriculture() {
   const heroParallax = useParallax(0.15);
   const catStagger = useStaggerReveal(AGRICULTURE_SUBCATEGORIES.length, 60);
   const resourceStagger = useStaggerReveal(4, 150);
+  const [selectedCat, setSelectedCat] = useState<string | null>(null);
 
   const resources = [
     { title: "Organic Farming Guide", desc: "A comprehensive guide to transitioning to organic methods." },
@@ -25,14 +29,11 @@ export default function Agriculture() {
   return (
     <Layout>
       <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10 relative overflow-hidden">
-        <div
-          ref={heroParallax.ref}
-          className="absolute inset-0 opacity-5"
-          style={{ transform: `translateY(${heroParallax.offset}px)` }}
-        />
+        <div ref={heroParallax.ref} className="absolute inset-0 opacity-5" style={{ transform: `translateY(${heroParallax.offset}px)` }} />
         <div className="container text-center relative z-10">
           <span className="text-6xl mb-4 block animate-float">🌱</span>
           <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 opacity-0 animate-hero-text">Agriculture Network</h1>
+          <p className="text-lg text-primary font-medium mb-2 opacity-0 animate-blur-in" style={{ animationDelay: "0.15s" }}>From Our Roots, We Rise</p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 animate-blur-in" style={{ animationDelay: "0.2s" }}>
             Connecting farmers, experts, and advocates to build sustainable food systems and preserve agricultural heritage.
           </p>
@@ -41,11 +42,11 @@ export default function Agriculture() {
 
       <section className="py-20">
         <div className="container">
-          <SectionHeading title="Agricultural Fields" subtitle="Find your area of expertise or interest." />
+          <SectionHeading title="Agricultural Fields" subtitle="Click any field to explore details and get involved." />
           <div ref={catStagger.ref} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {AGRICULTURE_SUBCATEGORIES.map((cat, i) => (
               <div key={cat} className={cn("opacity-0", catStagger.visibleItems[i] && "animate-stagger-in")}>
-                <CategoryCard title={cat} delay={0} />
+                <CategoryCard title={cat} delay={0} onClick={() => setSelectedCat(cat)} />
               </div>
             ))}
           </div>
@@ -71,13 +72,7 @@ export default function Agriculture() {
           <SectionHeading title="Resources" subtitle="Free guides and tools for farmers." />
           <div ref={resourceStagger.ref} className="grid md:grid-cols-2 gap-6">
             {resources.map((resource, i) => (
-              <div
-                key={resource.title}
-                className={cn(
-                  "flex items-start gap-4 p-4 rounded-lg border bg-card hover-lift opacity-0",
-                  resourceStagger.visibleItems[i] && "animate-stagger-in"
-                )}
-              >
+              <div key={resource.title} className={cn("flex items-start gap-4 p-4 rounded-lg border bg-card hover-lift opacity-0", resourceStagger.visibleItems[i] && "animate-stagger-in")}>
                 <Download className="h-5 w-5 text-primary mt-1 shrink-0" />
                 <div>
                   <h4 className="font-medium">{resource.title}</h4>
@@ -88,6 +83,12 @@ export default function Agriculture() {
           </div>
         </div>
       </section>
+
+      <SubcategoryDetailModal
+        open={!!selectedCat}
+        onOpenChange={(open) => !open && setSelectedCat(null)}
+        detail={selectedCat ? AGRICULTURE_DETAILS[selectedCat] || null : null}
+      />
     </Layout>
   );
 }
