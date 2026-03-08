@@ -22,7 +22,7 @@ const SAMPLE_VIDEOS = [
 
 export default function HomegrownTV() {
   const [filter, setFilter] = useState<string>("all");
-  const [formData, setFormData] = useState({ name: "", email: "", category: "", title: "", description: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", category: "", title: "", description: "", video_url: "" });
   const [submitting, setSubmitting] = useState(false);
 
   const filtered = filter === "all" ? SAMPLE_VIDEOS : SAMPLE_VIDEOS.filter((v) => v.category === filter);
