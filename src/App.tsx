@@ -22,6 +22,8 @@ import Membership from "./pages/Membership";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminRegister from "./pages/admin/Register";
 import ForgotPassword from "./pages/admin/ForgotPassword";
@@ -59,6 +61,8 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
 
             {/* Admin auth (public) */}
             <Route path="/admin/login" element={<AdminLogin />} />
