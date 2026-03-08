@@ -8,7 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Upload, Link as LinkIcon } from "lucide-react";
+
+const CONTENT_CATEGORIES = [
+  "Agriculture", "Arts & Culture", "Community", "Events",
+  "Homegrown TV", "Membership", "Partnerships", "Volunteering", "General",
+];
 
 interface BlogPost {
   id: string;
