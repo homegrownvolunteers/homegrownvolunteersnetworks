@@ -57,7 +57,7 @@ export default function About() {
             <div className="opacity-0 animate-slide-up" style={{ animationDelay: "0.3s" }}>
               <SectionHeading title="Our Mission" align="left" />
               <p className="text-muted-foreground">
-                To mobilize volunteers and resources that empower local communities to achieve food security, cultural preservation, and creative economic growth through collaborative action.
+                To mobilize volunteers, creatives, and community leaders to promote homegrown solutions in agriculture, culture, and the arts — nurturing the knowledge, talents, and traditions that already exist within communities and elevating them into drivers of progress.
               </p>
             </div>
           </div>
