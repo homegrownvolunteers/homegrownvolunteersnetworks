@@ -109,7 +109,7 @@ export default function HomegrownTV() {
             </Select>
             <Input placeholder="Story Title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
             <Textarea placeholder="Tell us about your story..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required />
-            <Input placeholder="Video URL (optional)" value={formData.video_url || ""} onChange={(e) => setFormData({ ...formData, video_url: e.target.value } as any)} />
+            <Input placeholder="Video URL (optional)" value={formData.video_url} onChange={(e) => setFormData({ ...formData, video_url: e.target.value })} />
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? "Submitting..." : "Submit Story"}
             </Button>
