@@ -39,7 +39,7 @@ export default function About() {
         <div className="container text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 opacity-0 animate-hero-text">Our Story</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 animate-blur-in" style={{ animationDelay: "0.2s" }}>
-            Born from the spirit of Harambee — pulling together — we are building a movement that celebrates and empowers local communities.
+            Rooted in the belief that strong communities grow from within, Homegrown exists to rediscover, document, celebrate, and amplify local strengths — from indigenous knowledge and cultural practices to creative expression.
           </p>
         </div>
       </section>
