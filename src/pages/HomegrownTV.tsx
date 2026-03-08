@@ -34,7 +34,7 @@ export default function HomegrownTV() {
       const { error } = await supabase.from("story_submissions").insert([formData]);
       if (error) throw error;
       toast.success("Story submitted! We'll review it soon.");
-      setFormData({ name: "", email: "", category: "", title: "", description: "" });
+      setFormData({ name: "", email: "", category: "", title: "", description: "", video_url: "" });
     } catch {
       toast.error("Failed to submit. Please try again.");
     }
