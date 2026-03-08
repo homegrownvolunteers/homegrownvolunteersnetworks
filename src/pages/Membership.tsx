@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { MEMBERSHIP_TIERS, ARTS_SUBCATEGORIES, CULTURE_SUBCATEGORIES, AGRICULTURE_SUBCATEGORIES } from "@/lib/constants";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 type Sector = "agriculture" | "arts" | "culture";
 
@@ -35,21 +37,61 @@ export default function Membership() {
   const [skillLevel, setSkillLevel] = useState("");
   const [intent, setIntent] = useState<string[]>([]);
   const [tier, setTier] = useState<"free" | "supporter" | "premium">("free");
-  const [profile, setProfile] = useState({ name: "", email: "", phone: "", location: "", bio: "" });
+  const [profile, setProfile] = useState({ name: "", email: "", phone: "", location: "", bio: "", password: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   const canNext = () => {
     switch (step) {
       case 1: return !!sector;
       case 2: return !!subcategory;
       case 3: return !!tier;
-      case 4: return !!profile.name && !!profile.email;
+      case 4: return !!profile.name && !!profile.email && profile.password.length >= 6;
       default: return true;
     }
   };
 
-  const handleSubmit = () => {
-    toast.success("Welcome to the Homegrown Volunteer Network! 🌱");
-    setStep(6);
+  const handleSubmit = async () => {
+    if (!sector) return;
+    setSubmitting(true);
+    try {
+      // 1. Sign up with email verification
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: profile.email,
+        password: profile.password,
+        options: {
+          data: { full_name: profile.name },
+          emailRedirectTo: window.location.origin,
+        },
+      });
+      if (authError) throw authError;
+
+      // 2. Insert membership with approved=false
+      const { error: memberError } = await supabase.from("memberships").insert([{
+        user_id: authData.user?.id,
+        sector: sector as "agriculture" | "arts" | "culture",
+        subcategory,
+        tier,
+        skill_level: skillLevel || null,
+        intent: intent.length > 0 ? intent : null,
+        status: "pending" as const,
+        approved: false,
+      }]);
+      if (memberError) throw memberError;
+
+      // 3. Update profile with extra info
+      if (authData.user) {
+        await supabase.from("profiles").update({
+          phone: profile.phone || null,
+          location: profile.location || null,
+          bio: profile.bio || null,
+        }).eq("user_id", authData.user.id);
+      }
+
+      setStep(6);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create account");
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -157,13 +199,19 @@ export default function Membership() {
             </div>
           )}
 
-          {/* Step 4: Profile */}
+          {/* Step 4: Profile + Password */}
           {step === 4 && (
             <div>
-              <SectionHeading title="Your Profile" subtitle="Tell us about yourself." />
+              <SectionHeading title="Your Profile" subtitle="Create your account to join." />
               <div className="space-y-4 max-w-md mx-auto">
                 <Input placeholder="Full Name *" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} required />
                 <Input type="email" placeholder="Email *" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} required />
+                <div>
+                  <Input type="password" placeholder="Password * (min 6 characters)" value={profile.password} onChange={(e) => setProfile({ ...profile, password: e.target.value })} required />
+                  {profile.password.length > 0 && profile.password.length < 6 && (
+                    <p className="text-xs text-destructive mt-1">Password must be at least 6 characters</p>
+                  )}
+                </div>
                 <Input placeholder="Phone" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
                 <Input placeholder="Location" value={profile.location} onChange={(e) => setProfile({ ...profile, location: e.target.value })} />
                 <Textarea placeholder="Short bio" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} />
@@ -195,14 +243,16 @@ export default function Membership() {
           {/* Step 6: Success */}
           {step === 6 && (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-3xl font-heading font-bold mb-4">Welcome to HVN!</h2>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                You're now part of the Homegrown Volunteer Network. Together, from our roots, we rise.
+              <div className="text-6xl mb-4">📧</div>
+              <h2 className="text-3xl font-heading font-bold mb-4">Check Your Email!</h2>
+              <p className="text-muted-foreground mb-2 max-w-md mx-auto">
+                We've sent a verification link to <strong>{profile.email}</strong>.
+              </p>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto text-sm">
+                Please verify your email, then an admin will review and approve your membership. You'll be notified once approved.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button onClick={() => window.location.href = "/"}>Go Home</Button>
-                <Button variant="outline" onClick={() => window.location.href = "/dashboard"}>View Dashboard</Button>
               </div>
             </div>
           )}
@@ -218,8 +268,8 @@ export default function Membership() {
                   Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit}>
-                  Confirm & Join <Check className="ml-2 h-4 w-4" />
+                <Button onClick={handleSubmit} disabled={submitting}>
+                  {submitting ? "Creating Account..." : "Confirm & Join"} <Check className="ml-2 h-4 w-4" />
                 </Button>
               )}
             </div>

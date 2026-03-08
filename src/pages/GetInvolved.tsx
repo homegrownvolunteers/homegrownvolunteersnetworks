@@ -121,10 +121,10 @@ export default function GetInvolved() {
             <div>
               <SectionHeading title="Why Volunteer With Us?" align="left" />
               <p className="text-muted-foreground mb-4">
-                Volunteering with the Homegrown Volunteer Network is more than giving time — it's joining a family of changemakers who believe in the power of local communities. Whether you're a student, professional, or retiree, your skills and passion can transform lives.
+                Volunteering with the Homegrown Volunteer Network is more than giving time — it's joining a family of changemakers who believe in the power of local communities.
               </p>
               <p className="text-muted-foreground mb-6">
-                Become a <strong className="text-foreground">Homegrown Enabler</strong> — choose your track in community storytelling, agriculture initiatives, cultural documentation, or media & creative production, and help amplify the voices and innovations of local communities.
+                Become a <strong className="text-foreground">Homegrown Enabler</strong> — choose your track in community storytelling, agriculture initiatives, cultural documentation, or media & creative production.
               </p>
               <Button size="lg" onClick={() => setShowVolunteerForm(true)}>
                 Join as a Volunteer <ArrowRight className="ml-2 h-4 w-4" />
@@ -194,7 +194,10 @@ export default function GetInvolved() {
 }
 
 function VolunteerForm({ onSuccess }: { onSuccess: () => void }) {
-  const [data, setData] = useState({ full_name: "", email: "", phone: "", hours_per_week: "", skills: "" });
+  const [data, setData] = useState({
+    full_name: "", email: "", phone: "", hours_per_week: "", skills: "",
+    location: "", experience: "", why_join: "",
+  });
   const [interests, setInterests] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const INTEREST_OPTIONS = ["Agriculture", "Arts", "Culture", "Media", "Events", "Education", "Environment"];
@@ -208,7 +211,17 @@ function VolunteerForm({ onSuccess }: { onSuccess: () => void }) {
     if (interests.length === 0) { toast.error("Select at least one area of interest."); return; }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("volunteers").insert([{ ...data, areas_of_interest: interests }]);
+      const { error } = await supabase.from("volunteers").insert([{
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone || null,
+        hours_per_week: data.hours_per_week || null,
+        skills: data.skills || null,
+        location: data.location || null,
+        experience: data.experience || null,
+        why_join: data.why_join || null,
+        areas_of_interest: interests,
+      }]);
       if (error) throw error;
       toast.success("Application submitted! We'll be in touch.");
       onSuccess();
@@ -218,11 +231,12 @@ function VolunteerForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <Input placeholder="Full Name" value={data.full_name} onChange={(e) => setData({ ...data, full_name: e.target.value })} required />
-      <Input type="email" placeholder="Email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} required />
-      <Input placeholder="Phone (optional)" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
+      <Input placeholder="Full Name *" value={data.full_name} onChange={(e) => setData({ ...data, full_name: e.target.value })} required />
+      <Input type="email" placeholder="Email *" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} required />
+      <Input placeholder="Phone" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
+      <Input placeholder="Location (city/county)" value={data.location} onChange={(e) => setData({ ...data, location: e.target.value })} />
       <div>
-        <p className="text-sm font-medium mb-2">Areas of Interest</p>
+        <p className="text-sm font-medium mb-2">Areas of Interest *</p>
         <div className="flex flex-wrap gap-2">
           {INTEREST_OPTIONS.map((opt) => (
             <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer">
@@ -232,8 +246,10 @@ function VolunteerForm({ onSuccess }: { onSuccess: () => void }) {
           ))}
         </div>
       </div>
-      <Input placeholder="Hours per week" value={data.hours_per_week} onChange={(e) => setData({ ...data, hours_per_week: e.target.value })} />
-      <Textarea placeholder="Skills & experience" value={data.skills} onChange={(e) => setData({ ...data, skills: e.target.value })} />
+      <Input placeholder="Hours per week you can commit" value={data.hours_per_week} onChange={(e) => setData({ ...data, hours_per_week: e.target.value })} />
+      <Textarea placeholder="Your skills (e.g., photography, farming, teaching)" value={data.skills} onChange={(e) => setData({ ...data, skills: e.target.value })} />
+      <Textarea placeholder="Tell us about your relevant experience" value={data.experience} onChange={(e) => setData({ ...data, experience: e.target.value })} />
+      <Textarea placeholder="Why would you like to join HVN? *" value={data.why_join} onChange={(e) => setData({ ...data, why_join: e.target.value })} required />
       <Button type="submit" className="w-full" disabled={submitting}>{submitting ? "Submitting..." : "Apply"}</Button>
     </form>
   );
