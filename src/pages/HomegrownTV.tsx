@@ -8,22 +8,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
+import { cn } from "@/lib/utils";
+import { SOCIAL_LINKS } from "@/lib/constants";
 
 const CATEGORIES = ["Agriculture Stories", "Cultural Heritage", "Artist Profiles", "Community Innovations"];
 
 const SAMPLE_VIDEOS = [
-  { id: "dQw4w9WgXcQ", title: "Growing Together: Meru Farmers Unite", category: "Agriculture Stories" },
-  { id: "dQw4w9WgXcQ", title: "The Art of Beadwork", category: "Artist Profiles" },
-  { id: "dQw4w9WgXcQ", title: "Preserving the Meru Language", category: "Cultural Heritage" },
-  { id: "dQw4w9WgXcQ", title: "Youth-Led Community Gardens", category: "Community Innovations" },
-  { id: "dQw4w9WgXcQ", title: "Traditional Music Revival", category: "Cultural Heritage" },
-  { id: "dQw4w9WgXcQ", title: "Organic Farming Success Story", category: "Agriculture Stories" },
+  { id: "kvM04D1Ekqk", title: "Makena Textiles", category: "Artist Profiles" },
+  { id: "QgWr7BVHJ54", title: "Samatian Island", category: "Cultural Heritage" },
+  { id: "kvM04D1Ekqk", title: "Growing Together: Meru Farmers Unite", category: "Agriculture Stories" },
+  { id: "QgWr7BVHJ54", title: "Youth-Led Community Gardens", category: "Community Innovations" },
+  { id: "kvM04D1Ekqk", title: "Traditional Music Revival", category: "Cultural Heritage" },
+  { id: "QgWr7BVHJ54", title: "Organic Farming Success Story", category: "Agriculture Stories" },
 ];
 
 export default function HomegrownTV() {
   const [filter, setFilter] = useState<string>("all");
   const [formData, setFormData] = useState({ name: "", email: "", category: "", title: "", description: "", video_url: "" });
   const [submitting, setSubmitting] = useState(false);
+  const heroRef = useScrollReveal();
+  const videosStagger = useStaggerReveal(6, 100);
 
   const filtered = filter === "all" ? SAMPLE_VIDEOS : SAMPLE_VIDEOS.filter((v) => v.category === filter);
 
@@ -43,10 +49,13 @@ export default function HomegrownTV() {
 
   return (
     <Layout>
-      <section className="py-20 bg-gradient-to-br from-primary/10 to-accent/10">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">📺 Homegrown TV</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <section className="py-24 bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
+        <div className="absolute top-16 right-12 text-6xl opacity-10 animate-float">📺</div>
+        <div ref={heroRef.ref} className="container text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 opacity-0 animate-hero-text">
+            Homegrown <span className="text-primary">TV</span>
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 animate-blur-in" style={{ animationDelay: "0.3s" }}>
             Documenting the stories of farmers, artists, and cultural bearers transforming communities.
           </p>
         </div>
@@ -55,7 +64,8 @@ export default function HomegrownTV() {
       {/* Featured */}
       <section className="py-12">
         <div className="container max-w-4xl">
-          <YouTubeEmbed videoId="dQw4w9WgXcQ" title="Featured Documentary" />
+          <SectionHeading title="Featured" />
+          <YouTubeEmbed videoId="kvM04D1Ekqk" title="Makena Textiles" />
         </div>
       </section>
 
@@ -68,12 +78,16 @@ export default function HomegrownTV() {
               <Button key={cat} variant={filter === cat ? "default" : "outline"} size="sm" onClick={() => setFilter(cat)}>{cat}</Button>
             ))}
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div ref={videosStagger.ref} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {filtered.map((video, i) => (
-              <div key={i} className="rounded-xl border bg-card overflow-hidden hover-lift">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <span className="text-4xl opacity-30">▶️</span>
-                </div>
+              <div
+                key={i}
+                className={cn(
+                  "rounded-xl border bg-card overflow-hidden hover-lift opacity-0",
+                  videosStagger.visibleItems[i] && "animate-stagger-in"
+                )}
+              >
+                <YouTubeEmbed videoId={video.id} title={video.title} />
                 <div className="p-4">
                   <span className="text-xs text-primary font-medium">{video.category}</span>
                   <h3 className="font-medium mt-1">{video.title}</h3>
@@ -88,7 +102,8 @@ export default function HomegrownTV() {
       <section className="py-12 bg-primary text-primary-foreground text-center">
         <div className="container">
           <h2 className="text-2xl font-heading font-bold mb-4">Subscribe to Our Channel</h2>
-          <a href="https://youtube.com/@homegrownnetwork" target="_blank" rel="noopener noreferrer">
+          <p className="text-primary-foreground/80 mb-6">All our content is on YouTube — subscribe to stay updated!</p>
+          <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer">
             <Button variant="secondary" size="lg">Subscribe on YouTube</Button>
           </a>
         </div>

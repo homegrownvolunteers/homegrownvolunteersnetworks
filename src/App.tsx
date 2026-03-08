@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -14,6 +15,7 @@ import Agriculture from "./pages/Agriculture";
 import HomegrownTV from "./pages/HomegrownTV";
 import Stories from "./pages/Stories";
 import GetInvolved from "./pages/GetInvolved";
+import Donate from "./pages/Donate";
 import Shop from "./pages/Shop";
 import Membership from "./pages/Membership";
 import Contact from "./pages/Contact";
@@ -28,6 +30,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
@@ -38,6 +41,7 @@ const App = () => (
             <Route path="/tv" element={<HomegrownTV />} />
             <Route path="/stories" element={<Stories />} />
             <Route path="/get-involved" element={<GetInvolved />} />
+            <Route path="/donate" element={<Donate />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/membership" element={<Membership />} />
             <Route path="/contact" element={<Contact />} />

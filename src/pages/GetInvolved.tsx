@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Button } from "@/components/ui/button";
@@ -6,41 +7,193 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DONATION_TIERS } from "@/lib/constants";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Heart } from "lucide-react";
+import { Heart, Users, Handshake, ArrowRight, CheckCircle } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
+const VOLUNTEER_BENEFITS = [
+  "Make a real impact in local communities",
+  "Gain hands-on experience in agriculture, arts & culture",
+  "Connect with a network of 2,500+ changemakers",
+  "Develop leadership and teamwork skills",
+  "Be part of Kenya's grassroots transformation",
+  "Access training workshops and mentorship",
+];
+
+const WAYS_TO_HELP = [
+  {
+    icon: Users,
+    title: "Volunteer Your Time",
+    desc: "Join community programs — from farm days to arts workshops. No experience needed, just passion.",
+    cta: "volunteer",
+  },
+  {
+    icon: Handshake,
+    title: "Partner With Us",
+    desc: "Organizations, institutions, and businesses — let's create lasting impact together.",
+    cta: "partner",
+  },
+  {
+    icon: Heart,
+    title: "Donate",
+    desc: "Every shilling supports a farmer, inspires an artist, and preserves a tradition.",
+    cta: "donate",
+  },
+];
 
 export default function GetInvolved() {
+  const [showVolunteerForm, setShowVolunteerForm] = useState(false);
+  const [showPartnerForm, setShowPartnerForm] = useState(false);
+  const heroRef = useScrollReveal();
+  const benefitsStagger = useStaggerReveal(VOLUNTEER_BENEFITS.length, 80);
+  const waysStagger = useStaggerReveal(WAYS_TO_HELP.length, 150);
+
+  const handleCtaClick = (cta: string) => {
+    if (cta === "volunteer") setShowVolunteerForm(true);
+    else if (cta === "partner") setShowPartnerForm(true);
+  };
+
   return (
     <Layout>
-      <section className="py-20 bg-gradient-to-br from-primary/10 to-secondary/10">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">Get Involved</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            There are many ways to join the movement. Volunteer, partner, or support our work.
+      {/* Hero */}
+      <section className="py-24 bg-gradient-to-br from-primary/10 via-background to-secondary/10 relative overflow-hidden">
+        <div className="absolute top-16 left-8 text-6xl opacity-10 animate-float">🤝</div>
+        <div className="absolute bottom-20 right-12 text-5xl opacity-10 animate-float" style={{ animationDelay: "1.5s" }}>🌍</div>
+        <div ref={heroRef.ref} className="container text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 opacity-0 animate-hero-text">
+            Be the <span className="text-primary">Change</span>
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 opacity-0 animate-blur-in" style={{ animationDelay: "0.3s" }}>
+            There are many ways to join the movement. Volunteer your time, partner with us, or support our work — every action counts.
           </p>
         </div>
       </section>
 
+      {/* Ways to Help */}
       <section className="py-20">
         <div className="container">
-          <div className="grid lg:grid-cols-3 gap-8">
-            <VolunteerForm />
-            <PartnerForm />
-            <DonateSection />
+          <SectionHeading title="How You Can Help" subtitle="Choose how you'd like to make a difference." />
+          <div ref={waysStagger.ref} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {WAYS_TO_HELP.map((way, i) => (
+              <div
+                key={way.title}
+                className={cn(
+                  "group relative rounded-2xl border-2 border-border bg-card p-8 text-center opacity-0",
+                  "transition-all duration-300 hover:border-primary hover:-translate-y-2 hover:shadow-2xl",
+                  waysStagger.visibleItems[i] && "animate-stagger-in"
+                )}
+              >
+                <way.icon className="h-12 w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="font-heading font-bold text-xl mb-3">{way.title}</h3>
+                <p className="text-muted-foreground text-sm mb-6">{way.desc}</p>
+                {way.cta === "donate" ? (
+                  <Link to="/donate">
+                    <Button>
+                      Donate Now <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button onClick={() => handleCtaClick(way.cta)}>
+                    {way.cta === "volunteer" ? "Apply to Volunteer" : "Start a Partnership"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
+      {/* Why Volunteer */}
+      <section className="py-20 bg-card">
+        <div className="container">
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+            <div>
+              <SectionHeading title="Why Volunteer With Us?" align="left" />
+              <p className="text-muted-foreground mb-6">
+                Volunteering with the Homegrown Volunteer Network is more than giving time — it's joining a family of changemakers who believe in the power of local communities. Whether you're a student, professional, or retiree, your skills and passion can transform lives.
+              </p>
+              <Button size="lg" onClick={() => setShowVolunteerForm(true)}>
+                Join as a Volunteer <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+            <div ref={benefitsStagger.ref} className="space-y-3">
+              {VOLUNTEER_BENEFITS.map((benefit, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "flex items-start gap-3 p-3 rounded-lg bg-background border opacity-0",
+                    benefitsStagger.visibleItems[i] && "animate-stagger-in"
+                  )}
+                >
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm font-medium">{benefit}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 bg-primary text-primary-foreground text-center">
+        <div className="container">
+          <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4">Ready to Make a Difference?</h2>
+          <p className="text-primary-foreground/80 max-w-xl mx-auto mb-6">
+            Join thousands of volunteers transforming communities across Kenya.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="secondary" size="lg" onClick={() => setShowVolunteerForm(true)}>
+              Become a Volunteer
+            </Button>
+            <Link to="/donate">
+              <Button variant="outline" size="lg" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                <Heart className="mr-2 h-4 w-4" /> Support Us
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Volunteer Dialog */}
+      <Dialog open={showVolunteerForm} onOpenChange={setShowVolunteerForm}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Volunteer Application</DialogTitle>
+            <DialogDescription>Fill out the form and we'll get back to you soon.</DialogDescription>
+          </DialogHeader>
+          <VolunteerForm onSuccess={() => setShowVolunteerForm(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Partner Dialog */}
+      <Dialog open={showPartnerForm} onOpenChange={setShowPartnerForm}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Partnership Inquiry</DialogTitle>
+            <DialogDescription>Tell us about your organization and how we can collaborate.</DialogDescription>
+          </DialogHeader>
+          <PartnerForm onSuccess={() => setShowPartnerForm(false)} />
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
 
-function VolunteerForm() {
+function VolunteerForm({ onSuccess }: { onSuccess: () => void }) {
   const [data, setData] = useState({ full_name: "", email: "", phone: "", hours_per_week: "", skills: "" });
   const [interests, setInterests] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-
   const INTEREST_OPTIONS = ["Agriculture", "Arts", "Culture", "Media", "Events", "Education", "Environment"];
 
   const toggleInterest = (interest: string) => {
@@ -54,41 +207,36 @@ function VolunteerForm() {
     try {
       const { error } = await supabase.from("volunteers").insert([{ ...data, areas_of_interest: interests }]);
       if (error) throw error;
-      toast.success("Application submitted!");
-      setData({ full_name: "", email: "", phone: "", hours_per_week: "", skills: "" });
-      setInterests([]);
+      toast.success("Application submitted! We'll be in touch.");
+      onSuccess();
     } catch { toast.error("Failed to submit."); }
     setSubmitting(false);
   };
 
   return (
-    <div className="rounded-xl border bg-card p-6">
-      <h3 className="font-heading font-bold text-xl mb-1">🤝 Volunteer</h3>
-      <p className="text-sm text-muted-foreground mb-4">Give your time and skills to the community.</p>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <Input placeholder="Full Name" value={data.full_name} onChange={(e) => setData({ ...data, full_name: e.target.value })} required />
-        <Input type="email" placeholder="Email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} required />
-        <Input placeholder="Phone (optional)" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
-        <div>
-          <p className="text-sm font-medium mb-2">Areas of Interest</p>
-          <div className="flex flex-wrap gap-2">
-            {INTEREST_OPTIONS.map((opt) => (
-              <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer">
-                <Checkbox checked={interests.includes(opt)} onCheckedChange={() => toggleInterest(opt)} />
-                {opt}
-              </label>
-            ))}
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <Input placeholder="Full Name" value={data.full_name} onChange={(e) => setData({ ...data, full_name: e.target.value })} required />
+      <Input type="email" placeholder="Email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} required />
+      <Input placeholder="Phone (optional)" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
+      <div>
+        <p className="text-sm font-medium mb-2">Areas of Interest</p>
+        <div className="flex flex-wrap gap-2">
+          {INTEREST_OPTIONS.map((opt) => (
+            <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer">
+              <Checkbox checked={interests.includes(opt)} onCheckedChange={() => toggleInterest(opt)} />
+              {opt}
+            </label>
+          ))}
         </div>
-        <Input placeholder="Hours per week" value={data.hours_per_week} onChange={(e) => setData({ ...data, hours_per_week: e.target.value })} />
-        <Textarea placeholder="Skills & experience" value={data.skills} onChange={(e) => setData({ ...data, skills: e.target.value })} />
-        <Button type="submit" className="w-full" disabled={submitting}>{submitting ? "Submitting..." : "Apply"}</Button>
-      </form>
-    </div>
+      </div>
+      <Input placeholder="Hours per week" value={data.hours_per_week} onChange={(e) => setData({ ...data, hours_per_week: e.target.value })} />
+      <Textarea placeholder="Skills & experience" value={data.skills} onChange={(e) => setData({ ...data, skills: e.target.value })} />
+      <Button type="submit" className="w-full" disabled={submitting}>{submitting ? "Submitting..." : "Apply"}</Button>
+    </form>
   );
 }
 
-function PartnerForm() {
+function PartnerForm({ onSuccess }: { onSuccess: () => void }) {
   const [data, setData] = useState({ organization_name: "", contact_name: "", email: "", phone: "", partnership_type: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
 
@@ -99,97 +247,27 @@ function PartnerForm() {
       const { error } = await supabase.from("partnerships").insert([data]);
       if (error) throw error;
       toast.success("Inquiry submitted!");
-      setData({ organization_name: "", contact_name: "", email: "", phone: "", partnership_type: "", message: "" });
+      onSuccess();
     } catch { toast.error("Failed to submit."); }
     setSubmitting(false);
   };
 
   return (
-    <div className="rounded-xl border bg-card p-6">
-      <h3 className="font-heading font-bold text-xl mb-1">🏢 Partner With Us</h3>
-      <p className="text-sm text-muted-foreground mb-4">Organizations and institutions — let's collaborate.</p>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <Input placeholder="Organization Name" value={data.organization_name} onChange={(e) => setData({ ...data, organization_name: e.target.value })} required />
-        <Input placeholder="Contact Name" value={data.contact_name} onChange={(e) => setData({ ...data, contact_name: e.target.value })} required />
-        <Input type="email" placeholder="Email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} required />
-        <Input placeholder="Phone (optional)" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
-        <Select value={data.partnership_type} onValueChange={(v) => setData({ ...data, partnership_type: v })}>
-          <SelectTrigger><SelectValue placeholder="Partnership Type" /></SelectTrigger>
-          <SelectContent>
-            {["Funding", "Technical", "Media", "Research", "Other"].map((t) => (
-              <SelectItem key={t} value={t}>{t}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Textarea placeholder="Your message or proposal" value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} required />
-        <Button type="submit" className="w-full" disabled={submitting}>{submitting ? "Submitting..." : "Send Inquiry"}</Button>
-      </form>
-    </div>
-  );
-}
-
-function DonateSection() {
-  const [amount, setAmount] = useState<number | null>(null);
-  const [custom, setCustom] = useState("");
-  const [frequency, setFrequency] = useState<"one_time" | "monthly">("one_time");
-  const [data, setData] = useState({ donor_name: "", donor_email: "", donor_phone: "", message: "" });
-  const [submitting, setSubmitting] = useState(false);
-
-  const finalAmount = amount || Number(custom) || 0;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (finalAmount <= 0) { toast.error("Please select or enter an amount."); return; }
-    setSubmitting(true);
-    try {
-      const { error } = await supabase.from("donations").insert([{ ...data, amount: finalAmount, frequency }]);
-      if (error) throw error;
-      toast.success("Thank you for your generous donation! Payment processing coming soon.");
-      setAmount(null);
-      setCustom("");
-      setData({ donor_name: "", donor_email: "", donor_phone: "", message: "" });
-    } catch { toast.error("Failed to submit."); }
-    setSubmitting(false);
-  };
-
-  return (
-    <div className="rounded-xl border bg-card p-6">
-      <h3 className="font-heading font-bold text-xl mb-1">❤️ Donate</h3>
-      <p className="text-sm text-muted-foreground mb-4">Support our mission directly.</p>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="grid grid-cols-2 gap-2">
-          {DONATION_TIERS.map((tier) => (
-            <Button
-              key={tier.amount}
-              type="button"
-              variant={amount === tier.amount ? "default" : "outline"}
-              size="sm"
-              onClick={() => { setAmount(tier.amount); setCustom(""); }}
-              className="text-xs"
-            >
-              {tier.label}
-            </Button>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <Input placeholder="Organization Name" value={data.organization_name} onChange={(e) => setData({ ...data, organization_name: e.target.value })} required />
+      <Input placeholder="Contact Name" value={data.contact_name} onChange={(e) => setData({ ...data, contact_name: e.target.value })} required />
+      <Input type="email" placeholder="Email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} required />
+      <Input placeholder="Phone (optional)" value={data.phone} onChange={(e) => setData({ ...data, phone: e.target.value })} />
+      <Select value={data.partnership_type} onValueChange={(v) => setData({ ...data, partnership_type: v })}>
+        <SelectTrigger><SelectValue placeholder="Partnership Type" /></SelectTrigger>
+        <SelectContent>
+          {["Funding", "Technical", "Media", "Research", "Other"].map((t) => (
+            <SelectItem key={t} value={t}>{t}</SelectItem>
           ))}
-        </div>
-        <Input type="number" placeholder="Custom amount (KES)" value={custom} onChange={(e) => { setCustom(e.target.value); setAmount(null); }} />
-        {finalAmount > 0 && (
-          <p className="text-xs text-muted-foreground italic">
-            {DONATION_TIERS.find((t) => t.amount <= finalAmount)?.impact || "Every shilling makes a difference!"}
-          </p>
-        )}
-        <div className="flex gap-2">
-          <Button type="button" variant={frequency === "one_time" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setFrequency("one_time")}>One-time</Button>
-          <Button type="button" variant={frequency === "monthly" ? "default" : "outline"} size="sm" className="flex-1" onClick={() => setFrequency("monthly")}>Monthly</Button>
-        </div>
-        <Input placeholder="Your Name" value={data.donor_name} onChange={(e) => setData({ ...data, donor_name: e.target.value })} required />
-        <Input type="email" placeholder="Email" value={data.donor_email} onChange={(e) => setData({ ...data, donor_email: e.target.value })} required />
-        <Input placeholder="Phone (optional)" value={data.donor_phone} onChange={(e) => setData({ ...data, donor_phone: e.target.value })} />
-        <Textarea placeholder="Message (optional)" value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} />
-        <Button type="submit" className="w-full" disabled={submitting}>
-          <Heart className="mr-2 h-4 w-4" /> {submitting ? "Processing..." : `Donate KES ${finalAmount.toLocaleString()}`}
-        </Button>
-        <p className="text-xs text-center text-muted-foreground">M-Pesa & card payment coming soon</p>
-      </form>
-    </div>
+        </SelectContent>
+      </Select>
+      <Textarea placeholder="Your message or proposal" value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} required />
+      <Button type="submit" className="w-full" disabled={submitting}>{submitting ? "Submitting..." : "Send Inquiry"}</Button>
+    </form>
   );
 }

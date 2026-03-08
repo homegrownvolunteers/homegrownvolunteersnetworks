@@ -7,8 +7,9 @@ import { PROGRAMS, SHOP_CATEGORIES } from "@/lib/constants";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 import { useParallax } from "@/hooks/useParallax";
-import { Play, ArrowRight, Sprout, Palette, Drama } from "lucide-react";
+import { Play, ArrowRight, Sprout, Palette, Drama, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { YouTubeEmbed } from "@/components/shared/YouTubeEmbed";
 
 const STATS = [
   { value: 2500, label: "Volunteers" },
@@ -40,46 +41,75 @@ export default function Index() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-secondary/10 to-accent/15" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.12),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,hsl(var(--secondary)/0.15),transparent_60%)]" />
+
         <div
           ref={heroParallax.ref}
-          className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-5"
+          className="absolute inset-0 opacity-[0.03]"
           style={{ transform: `translateY(${heroParallax.offset}px)` }}
-        />
+        >
+          <div className="w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_35px,hsl(var(--primary)/0.15)_35px,hsl(var(--primary)/0.15)_36px)]" />
+        </div>
+
         {/* Floating decorative elements */}
-        <div className="absolute top-20 left-10 text-6xl opacity-10 animate-float">🌱</div>
-        <div className="absolute bottom-32 right-16 text-5xl opacity-10 animate-float" style={{ animationDelay: "1s" }}>🎨</div>
-        <div className="absolute top-40 right-32 text-4xl opacity-10 animate-float" style={{ animationDelay: "2s" }}>🎭</div>
+        <div className="absolute top-20 left-[10%] text-7xl opacity-[0.07] animate-float">🌱</div>
+        <div className="absolute bottom-32 right-[8%] text-6xl opacity-[0.07] animate-float" style={{ animationDelay: "1s" }}>🎨</div>
+        <div className="absolute top-[35%] right-[20%] text-5xl opacity-[0.07] animate-float" style={{ animationDelay: "2s" }}>🎭</div>
+        <div className="absolute bottom-[20%] left-[15%] text-4xl opacity-[0.07] animate-float" style={{ animationDelay: "3s" }}>🤝</div>
+
+        {/* Decorative circles */}
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-32 -left-20 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
 
         <div className="container relative z-10 text-center py-20 px-4">
           <div ref={heroRef.ref}>
-            <span className="inline-block bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-6 opacity-0 animate-blur-in" style={{ animationDelay: "0.1s" }}>
+            <span className="inline-block bg-primary/10 text-primary text-sm font-medium px-5 py-2 rounded-full mb-8 opacity-0 animate-blur-in border border-primary/20" style={{ animationDelay: "0.1s" }}>
               From Our Roots, We Rise 🌱
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight mb-6 max-w-4xl mx-auto opacity-0 animate-hero-text" style={{ animationDelay: "0.2s" }}>
-              Recreating Proud, Resilient, <span className="text-primary">Thriving</span> Local Communities
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading font-extrabold leading-[0.95] mb-8 max-w-5xl mx-auto opacity-0 animate-hero-text" style={{ animationDelay: "0.2s" }}>
+              Recreating{" "}
+              <span className="relative inline-block">
+                <span className="text-primary">Proud</span>
+                <div className="absolute -bottom-1 left-0 right-0 h-1 bg-primary/40 rounded-full" />
+              </span>
+              , Resilient,{" "}
+              <span className="relative inline-block">
+                <span className="text-gradient">Thriving</span>
+              </span>
+              {" "}Local Communities
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 opacity-0 animate-blur-in" style={{ animationDelay: "0.5s" }}>
-              A Kenyan community-driven movement celebrating local agriculture, arts, and culture. Together, we grow.
+            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 opacity-0 animate-blur-in font-light" style={{ animationDelay: "0.5s" }}>
+              A Kenyan community-driven movement uniting agriculture, arts, and culture. Together, we grow.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center opacity-0 animate-slide-up" style={{ animationDelay: "0.7s" }}>
               <Link to="/membership">
-                <Button size="lg" className="text-base px-8">
+                <Button size="lg" className="text-base px-8 h-12 shadow-lg shadow-primary/25">
                   Join the Network <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/tv">
-                <Button size="lg" variant="outline" className="text-base px-8">
+                <Button size="lg" variant="outline" className="text-base px-8 h-12 backdrop-blur-sm">
                   <Play className="mr-2 h-4 w-4" /> Watch Homegrown TV
                 </Button>
               </Link>
-              <Link to="/programs">
-                <Button size="lg" variant="secondary" className="text-base px-8">
-                  Explore Our Work
+              <Link to="/donate">
+                <Button size="lg" variant="secondary" className="text-base px-8 h-12">
+                  <Heart className="mr-2 h-4 w-4" /> Support Us
                 </Button>
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Bottom wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 60" className="w-full h-auto fill-card">
+            <path d="M0,40 C360,80 720,0 1440,40 L1440,60 L0,60 Z" />
+          </svg>
         </div>
       </section>
 
@@ -99,7 +129,7 @@ export default function Index() {
               <div
                 key={pillar.title}
                 className={cn(
-                  "text-center p-6 rounded-xl bg-background hover-lift opacity-0",
+                  "text-center p-8 rounded-2xl bg-background hover-lift border border-border/50 opacity-0",
                   pillarsStagger.visibleItems[i] && "animate-stagger-in"
                 )}
               >
@@ -128,12 +158,15 @@ export default function Index() {
                     sectorsStagger.visibleItems[i] && "animate-stagger-in"
                   )}
                 >
-                  <div className="text-5xl mb-4">{sector.icon}</div>
-                  <h3 className="font-heading font-bold text-xl mb-2 group-hover:text-primary transition-colors">{sector.title}</h3>
-                  <p className="text-muted-foreground text-sm mb-4">{sector.description}</p>
-                  <Button variant="outline" size="sm">
-                    Join Now <ArrowRight className="ml-1 h-3 w-3" />
-                  </Button>
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10">
+                    <div className="text-5xl mb-4">{sector.icon}</div>
+                    <h3 className="font-heading font-bold text-xl mb-2 group-hover:text-primary transition-colors">{sector.title}</h3>
+                    <p className="text-muted-foreground text-sm mb-4">{sector.description}</p>
+                    <Button variant="outline" size="sm">
+                      Join Now <ArrowRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -151,14 +184,13 @@ export default function Index() {
                 Watch inspiring stories of farmers, artists, and cultural bearers transforming their communities across Kenya.
               </p>
               <Link to="/tv">
-                <Button>
+                <Button size="lg">
                   <Play className="mr-2 h-4 w-4" /> Watch Now
                 </Button>
               </Link>
             </div>
-            <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video flex items-center justify-center group cursor-pointer hover:shadow-xl transition-shadow">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
-              <Play className="h-16 w-16 text-primary-foreground bg-primary rounded-full p-4 group-hover:scale-110 transition-transform" />
+            <div className="rounded-2xl overflow-hidden shadow-xl">
+              <YouTubeEmbed videoId="kvM04D1Ekqk" title="Makena Textiles" />
             </div>
           </div>
         </div>

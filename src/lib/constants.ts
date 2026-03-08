@@ -5,10 +5,11 @@ export const CONTACT_EMAIL = "info@homegrownnetwork.org";
 export const CONTACT_LOCATION = "Meru, Kenya";
 
 export const SOCIAL_LINKS = {
-  youtube: "https://youtube.com/@homegrownnetwork",
-  tiktok: "https://tiktok.com/@homegrownnetwork",
-  facebook: "https://facebook.com/homegrownnetwork",
+  youtube: "https://youtube.com/@homegrownnetworktv?si=moy-v5Ri-22gjjaV",
+  tiktok: "https://www.tiktok.com/@homegrowntv1?_r=1&_t=ZS-94WcmdEUCO2",
+  facebook: "https://www.facebook.com/share/1CHJ2Kveu7/",
   instagram: "https://instagram.com/homegrownnetwork",
+  sanaa_facebook: "https://www.facebook.com/share/18KmyG2yJZ/",
 };
 
 export const SECTOR_LINKS = [
@@ -24,6 +25,7 @@ export const NAV_LINKS = [
   { label: "Homegrown TV", href: "/tv" },
   { label: "Stories", href: "/stories" },
   { label: "Get Involved", href: "/get-involved" },
+  { label: "Donate", href: "/donate" },
   { label: "Shop", href: "/shop" },
   { label: "Contact", href: "/contact" },
 ];
