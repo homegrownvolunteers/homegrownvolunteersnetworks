@@ -107,33 +107,33 @@ export const SHOP_CATEGORIES = [
 export const PROGRAMS = [
   {
     title: "Sustainable Agriculture & Food Security",
-    description: "Empowering smallholder farmers with organic techniques, seed preservation, and market access.",
+    description: "Reflecting the relationship between people and the land — sustainability, food security, indigenous farming practices, and the wisdom of communities living in harmony with their environment.",
     icon: "🌱",
     link: "/agriculture",
   },
   {
-    title: "Arts, Culture & Creative Economy",
-    description: "Building a thriving creative economy through arts training, exhibitions, and market platforms.",
+    title: "Sanaa Arts & Creative Economy",
+    description: "Expression, storytelling, and imagination — through visual arts, music, performance, and media, communities tell their stories, inspire new thinking, and build creative economies.",
     icon: "🎨",
     link: "/sanaa-arts",
   },
   {
-    title: "Mindset Change & Community Empowerment",
-    description: "Inspiring pride in local identity and fostering community-driven development.",
-    icon: "💡",
-    link: "/programs",
+    title: "Homegrown TV — From Our Roots, We Rise",
+    description: "A storytelling platform documenting and amplifying the voices of communities through video, documentaries, interviews, and digital storytelling.",
+    icon: "📺",
+    link: "/tv",
+  },
+  {
+    title: "Culture & Identity Preservation",
+    description: "Identity, tradition, and collective memory — language, customs, heritage, and the values that shape how communities understand themselves and their place in the world.",
+    icon: "🎭",
+    link: "/culture",
   },
   {
     title: "Youth & Volunteer Engagement",
-    description: "Mobilizing young people to lead community transformation through volunteerism.",
+    description: "Mobilizing young people and community actors to drive local solutions as Homegrown Enablers — through storytelling, agriculture, cultural documentation, and creative production.",
     icon: "🤝",
     link: "/get-involved",
-  },
-  {
-    title: "Environmental Conservation & Indigenous Knowledge",
-    description: "Preserving indigenous knowledge systems and promoting environmental stewardship.",
-    icon: "🌍",
-    link: "/culture",
   },
 ];
 

@@ -83,7 +83,7 @@ export default function Index() {
               {" "}Local Communities
             </h1>
             <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 opacity-0 animate-blur-in font-light" style={{ animationDelay: "0.5s" }}>
-              A Kenyan community-driven movement uniting agriculture, arts, and culture. Together, we grow.
+              Mobilizing people, culture, and local knowledge to build community-driven solutions through agriculture, arts, and culture. From our roots, we rise.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center opacity-0 animate-slide-up" style={{ animationDelay: "0.7s" }}>
               <Link to="/membership">

@@ -76,11 +76,15 @@ export default function Contact() {
               </div>
 
               {/* Map placeholder */}
-              <div className="rounded-xl border bg-muted aspect-video flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Map — Meru, Kenya</p>
-                </div>
+              <div className="rounded-xl overflow-hidden border aspect-video">
+                <iframe
+                  title="Homegrown Volunteer Network Location"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=37.640%2C0.055%2C37.650%2C0.063&layer=mapnik&marker=0.05909219859212323%2C37.644788285433776"
+                />
               </div>
 
               {/* Quick Links */}
