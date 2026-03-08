@@ -11,13 +11,16 @@ export const SOCIAL_LINKS = {
   instagram: "https://instagram.com/homegrownnetwork",
 };
 
+export const SECTOR_LINKS = [
+  { label: "Sanaa Arts", href: "/sanaa-arts", icon: "🎨" },
+  { label: "Culture", href: "/culture", icon: "🎭" },
+  { label: "Agriculture", href: "/agriculture", icon: "🌱" },
+];
+
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Programs", href: "/programs" },
-  { label: "Sanaa Arts", href: "/sanaa-arts" },
-  { label: "Culture", href: "/culture" },
-  { label: "Agriculture", href: "/agriculture" },
   { label: "Homegrown TV", href: "/tv" },
   { label: "Stories", href: "/stories" },
   { label: "Get Involved", href: "/get-involved" },
@@ -130,4 +133,15 @@ export const PROGRAMS = [
     icon: "🌍",
     link: "/culture",
   },
+];
+
+export const TEAM_MEMBERS = [
+  { name: "Hon. Eric Mutwiri Mwirigi", role: "Founder & Visionary", bio: "Driving community transformation through local solutions.", avatar: "👤" },
+  { name: "Amina Wanjiku", role: "Programs Director", bio: "Leading agricultural and arts initiatives across 20+ communities.", avatar: "👩🏾" },
+  { name: "David Mwenda", role: "Head of Agriculture", bio: "Expert in organic farming and sustainable food systems.", avatar: "👨🏾" },
+  { name: "Grace Nyambura", role: "Sanaa Arts Coordinator", bio: "Connecting artists and building Kenya's creative economy.", avatar: "👩🏾‍🎨" },
+  { name: "John Kariuki", role: "Cultural Programs Lead", bio: "Preserving heritage and indigenous knowledge systems.", avatar: "👨🏾‍🏫" },
+  { name: "Fatima Hassan", role: "Community Engagement", bio: "Mobilizing volunteers and strengthening community bonds.", avatar: "👩🏾‍💼" },
+  { name: "Peter Otieno", role: "Media & Communications", bio: "Storytelling through Homegrown TV and digital platforms.", avatar: "🎬" },
+  { name: "Mary Akinyi", role: "Membership & Partnerships", bio: "Growing the network and forging strategic alliances.", avatar: "🤝" },
 ];
