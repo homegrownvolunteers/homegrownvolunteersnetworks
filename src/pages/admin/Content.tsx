@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Link as LinkIcon } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -24,12 +24,31 @@ interface BlogPost {
 
 const emptyPost = { title: "", slug: "", content: "", excerpt: "", image_url: "", category: "general", published: false };
 
+async function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ratio = Math.min(maxWidth / img.width, 1);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => resolve(blob!), "image/jpeg", quality);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export default function Content() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState(emptyPost);
+  const [uploading, setUploading] = useState(false);
+  const [imageMode, setImageMode] = useState<"upload" | "url">("upload");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     const { data } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
@@ -38,6 +57,24 @@ export default function Content() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const compressed = await compressImage(file);
+      const fileName = `${Date.now()}-${file.name.replace(/\.[^.]+$/, ".jpg")}`;
+      const { error } = await supabase.storage.from("content-images").upload(fileName, compressed, { contentType: "image/jpeg" });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("content-images").getPublicUrl(fileName);
+      setForm({ ...form, image_url: urlData.publicUrl });
+      toast.success("Image uploaded!");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    }
+    setUploading(false);
+  };
 
   const handleSave = async () => {
     const slug = form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -121,7 +158,33 @@ export default function Content() {
             <div><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="auto-generated from title" /></div>
             <div><Label>Category</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></div>
             <div><Label>Excerpt</Label><Input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} /></div>
-            <div><Label>Image URL</Label><Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
+
+            {/* Image: Upload or URL */}
+            <div>
+              <Label>Image</Label>
+              <div className="flex gap-2 mb-2">
+                <Button type="button" variant={imageMode === "upload" ? "default" : "outline"} size="sm" onClick={() => setImageMode("upload")}>
+                  <Upload className="h-3 w-3 mr-1" /> Upload
+                </Button>
+                <Button type="button" variant={imageMode === "url" ? "default" : "outline"} size="sm" onClick={() => setImageMode("url")}>
+                  <LinkIcon className="h-3 w-3 mr-1" /> URL
+                </Button>
+              </div>
+              {imageMode === "upload" ? (
+                <div>
+                  <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading} className="w-full">
+                    {uploading ? "Compressing & uploading..." : "Choose Image"}
+                  </Button>
+                </div>
+              ) : (
+                <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://..." />
+              )}
+              {form.image_url && (
+                <img src={form.image_url} alt="Preview" className="mt-2 w-full h-32 object-cover rounded border" />
+              )}
+            </div>
+
             <div><Label>Content</Label><Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={8} /></div>
             <div className="flex items-center gap-2">
               <Switch checked={form.published} onCheckedChange={(v) => setForm({ ...form, published: v })} />

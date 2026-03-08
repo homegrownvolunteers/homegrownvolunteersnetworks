@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Registrations() {
   const [volunteers, setVolunteers] = useState<any[]>([]);
@@ -55,16 +56,35 @@ export default function Registrations() {
           <div className="flex justify-end mb-2">
             <Button variant="outline" size="sm" onClick={() => exportData(volunteers, "volunteers")}><Download className="h-4 w-4 mr-1" /> Export</Button>
           </div>
-          <div className="border rounded-lg">
+          <div className="border rounded-lg overflow-x-auto">
             <Table>
-              <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Areas</TableHead><TableHead>Date</TableHead></TableRow></TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Areas of Interest</TableHead>
+                  <TableHead>Hours/Week</TableHead>
+                  <TableHead>Skills</TableHead>
+                  <TableHead>Experience</TableHead>
+                  <TableHead>Why Join</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {volunteers.map((v) => (
                   <TableRow key={v.id}>
-                    <TableCell>{v.full_name}</TableCell>
+                    <TableCell className="whitespace-nowrap">{v.full_name}</TableCell>
                     <TableCell>{v.email}</TableCell>
+                    <TableCell>{v.phone || "—"}</TableCell>
+                    <TableCell>{v.location || "—"}</TableCell>
                     <TableCell>{v.areas_of_interest?.join(", ")}</TableCell>
-                    <TableCell>{new Date(v.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{v.hours_per_week || "—"}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">{v.skills || "—"}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">{v.experience || "—"}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">{v.why_join || "—"}</TableCell>
+                    <TableCell className="whitespace-nowrap">{new Date(v.created_at).toLocaleDateString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

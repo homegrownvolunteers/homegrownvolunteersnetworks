@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -21,7 +22,19 @@ interface Episode {
   created_at: string;
 }
 
-const emptyEp = { title: "", description: "", video_url: "", thumbnail_url: "", category: "general", published: true };
+const TV_CATEGORIES = ["Agriculture Stories", "Cultural Heritage", "Artist Profiles", "Community Innovations", "General"];
+
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+function getYouTubeThumbnail(url: string): string | null {
+  const id = extractYouTubeId(url);
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+}
+
+const emptyEp = { title: "", description: "", video_url: "", category: "General", published: true };
 
 export default function TVEpisodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
@@ -39,12 +52,15 @@ export default function TVEpisodes() {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
+    const thumbnail_url = getYouTubeThumbnail(form.video_url) || null;
+    const payload = { ...form, thumbnail_url };
+
     if (editing) {
-      const { error } = await supabase.from("tv_episodes").update(form).eq("id", editing);
+      const { error } = await supabase.from("tv_episodes").update(payload).eq("id", editing);
       if (error) { toast.error(error.message); return; }
       toast.success("Episode updated");
     } else {
-      const { error } = await supabase.from("tv_episodes").insert([form]);
+      const { error } = await supabase.from("tv_episodes").insert([payload]);
       if (error) { toast.error(error.message); return; }
       toast.success("Episode added");
     }
@@ -62,10 +78,12 @@ export default function TVEpisodes() {
   };
 
   const openEdit = (ep: Episode) => {
-    setForm({ title: ep.title, description: ep.description || "", video_url: ep.video_url, thumbnail_url: ep.thumbnail_url || "", category: ep.category, published: ep.published });
+    setForm({ title: ep.title, description: ep.description || "", video_url: ep.video_url, category: ep.category, published: ep.published });
     setEditing(ep.id);
     setDialogOpen(true);
   };
+
+  const previewThumb = getYouTubeThumbnail(form.video_url);
 
   return (
     <div>
@@ -79,6 +97,7 @@ export default function TVEpisodes() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-16">Thumb</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Published</TableHead>
@@ -89,6 +108,13 @@ export default function TVEpisodes() {
             <TableBody>
               {episodes.map((ep) => (
                 <TableRow key={ep.id}>
+                  <TableCell>
+                    {ep.thumbnail_url ? (
+                      <img src={ep.thumbnail_url} alt="" className="w-14 h-10 object-cover rounded" />
+                    ) : (
+                      <div className="w-14 h-10 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">N/A</div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{ep.title}</TableCell>
                   <TableCell>{ep.category}</TableCell>
                   <TableCell>{ep.published ? "✅" : "Hidden"}</TableCell>
@@ -101,7 +127,7 @@ export default function TVEpisodes() {
                   </TableCell>
                 </TableRow>
               ))}
-              {episodes.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No episodes yet</TableCell></TableRow>}
+              {episodes.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No episodes yet</TableCell></TableRow>}
             </TableBody>
           </Table>
         </div>
@@ -114,9 +140,25 @@ export default function TVEpisodes() {
           </DialogHeader>
           <div className="space-y-4">
             <div><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-            <div><Label>Video URL / Embed Code</Label><Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="YouTube URL or embed code" /></div>
-            <div><Label>Category</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></div>
-            <div><Label>Thumbnail URL</Label><Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} /></div>
+            <div>
+              <Label>YouTube URL</Label>
+              <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://youtube.com/watch?v=..." />
+              {previewThumb && (
+                <div className="mt-2">
+                  <p className="text-xs text-muted-foreground mb-1">Auto-generated thumbnail:</p>
+                  <img src={previewThumb} alt="Thumbnail preview" className="w-40 h-auto rounded border" />
+                </div>
+              )}
+            </div>
+            <div>
+              <Label>Category</Label>
+              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TV_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} /></div>
             <div className="flex items-center gap-2">
               <Switch checked={form.published} onCheckedChange={(v) => setForm({ ...form, published: v })} />
