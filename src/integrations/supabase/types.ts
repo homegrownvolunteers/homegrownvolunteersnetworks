@@ -127,6 +127,7 @@ export type Database = {
       }
       memberships: {
         Row: {
+          approved: boolean
           created_at: string
           id: string
           intent: string[] | null
@@ -140,6 +141,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          approved?: boolean
           created_at?: string
           id?: string
           intent?: string[] | null
@@ -153,6 +155,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          approved?: boolean
           created_at?: string
           id?: string
           intent?: string[] | null
@@ -508,34 +511,43 @@ export type Database = {
           areas_of_interest: string[]
           created_at: string
           email: string
+          experience: string | null
           full_name: string
           hours_per_week: string | null
           id: string
+          location: string | null
           phone: string | null
           skills: string | null
           user_id: string | null
+          why_join: string | null
         }
         Insert: {
           areas_of_interest: string[]
           created_at?: string
           email: string
+          experience?: string | null
           full_name: string
           hours_per_week?: string | null
           id?: string
+          location?: string | null
           phone?: string | null
           skills?: string | null
           user_id?: string | null
+          why_join?: string | null
         }
         Update: {
           areas_of_interest?: string[]
           created_at?: string
           email?: string
+          experience?: string | null
           full_name?: string
           hours_per_week?: string | null
           id?: string
+          location?: string | null
           phone?: string | null
           skills?: string | null
           user_id?: string | null
+          why_join?: string | null
         }
         Relationships: []
       }
