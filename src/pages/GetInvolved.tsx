@@ -120,8 +120,11 @@ export default function GetInvolved() {
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div>
               <SectionHeading title="Why Volunteer With Us?" align="left" />
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-4">
                 Volunteering with the Homegrown Volunteer Network is more than giving time — it's joining a family of changemakers who believe in the power of local communities. Whether you're a student, professional, or retiree, your skills and passion can transform lives.
+              </p>
+              <p className="text-muted-foreground mb-6">
+                Become a <strong className="text-foreground">Homegrown Enabler</strong> — choose your track in community storytelling, agriculture initiatives, cultural documentation, or media & creative production, and help amplify the voices and innovations of local communities.
               </p>
               <Button size="lg" onClick={() => setShowVolunteerForm(true)}>
                 Join as a Volunteer <ArrowRight className="ml-2 h-4 w-4" />

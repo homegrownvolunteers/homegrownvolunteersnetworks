@@ -39,7 +39,7 @@ export default function About() {
         <div className="container text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 opacity-0 animate-hero-text">Our Story</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto opacity-0 animate-blur-in" style={{ animationDelay: "0.2s" }}>
-            Born from the spirit of Harambee — pulling together — we are building a movement that celebrates and empowers local communities.
+            Rooted in the belief that strong communities grow from within, Homegrown exists to rediscover, document, celebrate, and amplify local strengths — from indigenous knowledge and cultural practices to creative expression.
           </p>
         </div>
       </section>
@@ -51,13 +51,13 @@ export default function About() {
             <div className="opacity-0 animate-slide-in-left" style={{ animationDelay: "0.1s" }}>
               <SectionHeading title="Our Vision" align="left" />
               <p className="text-muted-foreground">
-                A Kenya where every community thrives through sustainable agriculture, vibrant arts, and preserved cultural heritage — proud of its roots and confident in its future.
+                Recreating proud, resilient, and thriving local communities. Pride comes from a strong sense of identity and cultural heritage. Resilience comes from communities that can adapt and sustain themselves through their own knowledge and collaboration.
               </p>
             </div>
             <div className="opacity-0 animate-slide-up" style={{ animationDelay: "0.3s" }}>
               <SectionHeading title="Our Mission" align="left" />
               <p className="text-muted-foreground">
-                To mobilize volunteers and resources that empower local communities to achieve food security, cultural preservation, and creative economic growth through collaborative action.
+                To mobilize volunteers, creatives, and community leaders to promote homegrown solutions in agriculture, culture, and the arts — nurturing the knowledge, talents, and traditions that already exist within communities and elevating them into drivers of progress.
               </p>
             </div>
           </div>
@@ -101,10 +101,10 @@ export default function About() {
               <h2 className="text-3xl font-heading font-bold mb-2">Hon. Eric Mutwiri Mwirigi</h2>
               <p className="text-primary font-medium mb-4">Founder & Visionary</p>
               <p className="text-muted-foreground mb-4">
-                Driven by a deep love for community and a belief in the power of local solutions, Hon. Mwirigi founded the Homegrown Volunteer Network to reconnect Kenyans with their agricultural heritage, artistic talent, and cultural identity.
+                Driven by a deep conviction that communities already hold the knowledge and capacity to solve their own challenges, Hon. Mwirigi founded the Homegrown Volunteer Network to rediscover, document, and celebrate local strengths — from indigenous farming practices to creative expression.
               </p>
               <p className="text-muted-foreground">
-                His vision: every community in Kenya standing proudly on its own roots, thriving through collaboration and creativity.
+                His philosophy: rather than importing development models from outside, nurture the knowledge, talents, and traditions that already exist within communities and elevate them into drivers of progress.
               </p>
             </div>
           </div>
