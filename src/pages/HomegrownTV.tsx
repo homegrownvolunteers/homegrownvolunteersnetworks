@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { YouTubeEmbed } from "@/components/shared/YouTubeEmbed";
@@ -13,25 +13,52 @@ import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 import { cn } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 
-const CATEGORIES = ["Agriculture Stories", "Cultural Heritage", "Artist Profiles", "Community Innovations"];
+const CATEGORIES = ["Agriculture Stories", "Cultural Heritage", "Artist Profiles", "Community Innovations", "General"];
 
-const SAMPLE_VIDEOS = [
-  { id: "kvM04D1Ekqk", title: "Makena Textiles", category: "Artist Profiles" },
-  { id: "QgWr7BVHJ54", title: "Samatian Island", category: "Cultural Heritage" },
-  { id: "kvM04D1Ekqk", title: "Growing Together: Meru Farmers Unite", category: "Agriculture Stories" },
-  { id: "QgWr7BVHJ54", title: "Youth-Led Community Gardens", category: "Community Innovations" },
-  { id: "kvM04D1Ekqk", title: "Traditional Music Revival", category: "Cultural Heritage" },
-  { id: "QgWr7BVHJ54", title: "Organic Farming Success Story", category: "Agriculture Stories" },
-];
+function extractYouTubeId(url: string): string | null {
+  // Handle iframe embed codes
+  const iframeMatch = url.match(/src=["'][^"']*(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
+  if (iframeMatch) return iframeMatch[1];
+  // Handle plain URLs
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+interface Episode {
+  id: string;
+  title: string;
+  description: string | null;
+  video_url: string;
+  thumbnail_url: string | null;
+  category: string;
+  published: boolean;
+  created_at: string;
+}
 
 export default function HomegrownTV() {
   const [filter, setFilter] = useState<string>("all");
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ name: "", email: "", category: "", title: "", description: "", video_url: "" });
   const [submitting, setSubmitting] = useState(false);
   const heroRef = useScrollReveal();
-  const videosStagger = useStaggerReveal(6, 100);
+  const videosStagger = useStaggerReveal(12, 100);
 
-  const filtered = filter === "all" ? SAMPLE_VIDEOS : SAMPLE_VIDEOS.filter((v) => v.category === filter);
+  useEffect(() => {
+    const fetchEpisodes = async () => {
+      const { data } = await supabase
+        .from("tv_episodes")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      if (data) setEpisodes(data);
+      setLoading(false);
+    };
+    fetchEpisodes();
+  }, []);
+
+  const filtered = filter === "all" ? episodes : episodes.filter((v) => v.category === filter);
+  const featured = episodes[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,12 +89,17 @@ export default function HomegrownTV() {
       </section>
 
       {/* Featured */}
-      <section className="py-12">
-        <div className="container max-w-4xl">
-          <SectionHeading title="Featured" />
-          <YouTubeEmbed videoId="kvM04D1Ekqk" title="Makena Textiles" />
-        </div>
-      </section>
+      {featured && (() => {
+        const featuredVideoId = extractYouTubeId(featured.video_url);
+        return featuredVideoId ? (
+          <section className="py-12">
+            <div className="container max-w-4xl">
+              <SectionHeading title="Featured" />
+              <YouTubeEmbed videoId={featuredVideoId} title={featured.title} />
+            </div>
+          </section>
+        ) : null;
+      })()}
 
       {/* Filter + Grid */}
       <section className="py-12">
@@ -78,23 +110,37 @@ export default function HomegrownTV() {
               <Button key={cat} variant={filter === cat ? "default" : "outline"} size="sm" onClick={() => setFilter(cat)}>{cat}</Button>
             ))}
           </div>
-          <div ref={videosStagger.ref} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {filtered.map((video, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "rounded-xl border bg-card overflow-hidden hover-lift opacity-0",
-                  videosStagger.visibleItems[i] && "animate-stagger-in"
-                )}
-              >
-                <YouTubeEmbed videoId={video.id} title={video.title} />
-                <div className="p-4">
-                  <span className="text-xs text-primary font-medium">{video.category}</span>
-                  <h3 className="font-medium mt-1">{video.title}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
+
+          {loading ? (
+            <p className="text-center text-muted-foreground">Loading episodes...</p>
+          ) : filtered.length === 0 ? (
+            <p className="text-center text-muted-foreground">No episodes found.</p>
+          ) : (
+            <div ref={videosStagger.ref} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {filtered.map((video, i) => {
+                const videoId = extractYouTubeId(video.video_url);
+                if (!videoId) return null;
+                return (
+                  <div
+                    key={video.id}
+                    className={cn(
+                      "rounded-xl border bg-card overflow-hidden hover-lift opacity-0",
+                      videosStagger.visibleItems[i] && "animate-stagger-in"
+                    )}
+                  >
+                    <YouTubeEmbed videoId={videoId} title={video.title} />
+                    <div className="p-4">
+                      <span className="text-xs text-primary font-medium">{video.category}</span>
+                      <h3 className="font-medium mt-1">{video.title}</h3>
+                      {video.description && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{video.description}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
