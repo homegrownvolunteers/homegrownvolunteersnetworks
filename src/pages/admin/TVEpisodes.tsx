@@ -25,6 +25,8 @@ interface Episode {
 const TV_CATEGORIES = ["Agriculture Stories", "Cultural Heritage", "Artist Profiles", "Community Innovations", "General"];
 
 function extractYouTubeId(url: string): string | null {
+  const iframeMatch = url.match(/src=["'][^"']*(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
+  if (iframeMatch) return iframeMatch[1];
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
 }
