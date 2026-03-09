@@ -25,6 +25,8 @@ interface Episode {
 const TV_CATEGORIES = ["Agriculture Stories", "Cultural Heritage", "Artist Profiles", "Community Innovations", "General"];
 
 function extractYouTubeId(url: string): string | null {
+  const iframeMatch = url.match(/src=["'][^"']*(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
+  if (iframeMatch) return iframeMatch[1];
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
 }
@@ -141,8 +143,8 @@ export default function TVEpisodes() {
           <div className="space-y-4">
             <div><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
             <div>
-              <Label>YouTube URL</Label>
-              <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://youtube.com/watch?v=..." />
+              <Label>YouTube URL or Embed Code</Label>
+              <Textarea value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder='Paste YouTube URL or <iframe> embed code...' rows={3} />
               {previewThumb && (
                 <div className="mt-2">
                   <p className="text-xs text-muted-foreground mb-1">Auto-generated thumbnail:</p>
