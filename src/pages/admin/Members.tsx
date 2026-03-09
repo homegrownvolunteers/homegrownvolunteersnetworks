@@ -132,6 +132,9 @@ export default function Members() {
         </div>
       </div>
 
+      {loading ? (
+        <p className="text-muted-foreground">Loading...</p>
+      ) : (
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
