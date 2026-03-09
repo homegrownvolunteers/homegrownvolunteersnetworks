@@ -17,19 +17,48 @@ interface Membership {
   user_id: string | null;
 }
 
+interface Profile {
+  user_id: string;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+}
+
 export default function Members() {
   const [members, setMembers] = useState<Membership[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved">("all");
 
   const load = async () => {
     const { data, error } = await supabase.from("memberships").select("*").order("created_at", { ascending: false });
-    if (!error && data) setMembers(data as any);
+    if (!error && data) {
+      setMembers(data as any);
+      
+      // Load profiles for all members with user_id
+      const userIds = (data as any[]).filter((m) => m.user_id).map((m) => m.user_id);
+      if (userIds.length > 0) {
+        const { data: profileData } = await supabase.from("profiles").select("*").in("user_id", userIds);
+        if (profileData) {
+          const profileMap: Record<string, Profile> = {};
+          profileData.forEach((p: any) => {
+            profileMap[p.user_id] = p;
+          });
+          setProfiles(profileMap);
+        }
+      }
+    }
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  const filtered = members
+    .filter((m) => filter === "all" || (filter === "pending" ? !m.approved : m.approved))
+    .filter((m) => {
+      const profile = m.user_id ? profiles[m.user_id] : null;
+      const searchText = `${m.sector} ${m.subcategory} ${m.tier} ${m.status} ${profile?.full_name || ""} ${profile?.email || ""}`.toLowerCase();
+      return searchText.includes(search.toLowerCase());
+    });
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase.from("memberships").update({ approved: true, status: "active" as const }).eq("id", id);
@@ -44,10 +73,6 @@ export default function Members() {
     toast.success("Member rejected");
     load();
   };
-
-  const filtered = members
-    .filter((m) => filter === "all" || (filter === "pending" ? !m.approved : m.approved))
-    .filter((m) => `${m.sector} ${m.subcategory} ${m.tier} ${m.status}`.toLowerCase().includes(search.toLowerCase()));
 
   const exportExcel = async () => {
     try {
@@ -107,13 +132,12 @@ export default function Members() {
         </div>
       </div>
 
-      {loading ? (
-        <p className="text-muted-foreground">Loading...</p>
-      ) : (
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Sector</TableHead>
                 <TableHead>Subcategory</TableHead>
                 <TableHead>Tier</TableHead>
@@ -124,28 +148,33 @@ export default function Members() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((m) => (
-                <TableRow key={m.id} className={!m.approved ? "bg-yellow-50/50 dark:bg-yellow-950/10" : ""}>
-                  <TableCell className="capitalize">{m.sector}</TableCell>
-                  <TableCell>{m.subcategory}</TableCell>
-                  <TableCell className="capitalize">{m.tier}</TableCell>
-                  <TableCell className="capitalize">{m.status}</TableCell>
-                  <TableCell>{m.approved ? <CheckCircle className="h-4 w-4 text-green-600" /> : <XCircle className="h-4 w-4 text-yellow-600" />}</TableCell>
-                  <TableCell>{new Date(m.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    {!m.approved ? (
-                      <div className="flex gap-1">
-                        <Button variant="default" size="sm" onClick={() => handleApprove(m.id)}>Approve</Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleReject(m.id)}>Reject</Button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Approved</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filtered.map((m) => {
+                const profile = m.user_id ? profiles[m.user_id] : null;
+                return (
+                  <TableRow key={m.id} className={!m.approved ? "bg-yellow-50/50 dark:bg-yellow-950/10" : ""}>
+                    <TableCell className="font-medium">{profile?.full_name || "—"}</TableCell>
+                    <TableCell className="text-sm">{profile?.email || "—"}</TableCell>
+                    <TableCell className="capitalize">{m.sector}</TableCell>
+                    <TableCell>{m.subcategory}</TableCell>
+                    <TableCell className="capitalize">{m.tier}</TableCell>
+                    <TableCell className="capitalize">{m.status}</TableCell>
+                    <TableCell>{m.approved ? <CheckCircle className="h-4 w-4 text-green-600" /> : <XCircle className="h-4 w-4 text-yellow-600" />}</TableCell>
+                    <TableCell>{new Date(m.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {!m.approved ? (
+                        <div className="flex gap-1">
+                          <Button variant="default" size="sm" onClick={() => handleApprove(m.id)}>Approve</Button>
+                          <Button variant="destructive" size="sm" onClick={() => handleReject(m.id)}>Reject</Button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Approved</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">No members found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground">No members found</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

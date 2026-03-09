@@ -5,12 +5,13 @@ import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 import { useParallax } from "@/hooks/useParallax";
 import { TEAM_MEMBERS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Handshake, Home, Palette, Globe, User } from "lucide-react";
 
 const VALUES = [
-  { icon: "🤝", title: "Community First", desc: "Every initiative starts and ends with the people." },
-  { icon: "🏠", title: "Pride in Identity", desc: "Celebrating what makes our communities unique." },
-  { icon: "🎨", title: "Creativity for Change", desc: "Using arts and innovation as tools for transformation." },
-  { icon: "🌍", title: "Collaboration", desc: "Together we achieve more than alone." },
+  { iconComp: Handshake, title: "Community First", desc: "Every initiative starts and ends with the people." },
+  { iconComp: Home, title: "Pride in Identity", desc: "Celebrating what makes our communities unique." },
+  { iconComp: Palette, title: "Creativity for Change", desc: "Using arts and innovation as tools for transformation." },
+  { iconComp: Globe, title: "Collaboration", desc: "Together we achieve more than alone." },
 ];
 
 const TIMELINE = [
@@ -78,7 +79,9 @@ export default function About() {
                 )}
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
-                <div className="text-4xl mb-3 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>{v.icon}</div>
+                <div className="flex justify-center mb-3 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
+                  <v.iconComp className="w-8 h-8 text-primary" />
+                </div>
                 <h3 className="font-heading font-semibold mb-1">{v.title}</h3>
                 <p className="text-sm text-muted-foreground">{v.desc}</p>
               </div>
@@ -95,7 +98,7 @@ export default function About() {
             className={cn("grid md:grid-cols-2 gap-12 items-center opacity-0", founderRef.isVisible && "animate-fade-up opacity-100")}
           >
             <div className="aspect-square bg-muted rounded-2xl flex items-center justify-center overflow-hidden group">
-              <span className="text-6xl opacity-30 group-hover:scale-110 transition-transform duration-500">👤</span>
+              <User className="w-24 h-24 text-muted-foreground/30 group-hover:scale-110 transition-transform duration-500" />
             </div>
             <div>
               <h2 className="text-3xl font-heading font-bold mb-2">Hon. Eric Mutwiri Mwirigi</h2>
@@ -127,7 +130,7 @@ export default function About() {
                 style={{ animationDelay: `${i * 0.06}s` }}
               >
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-3xl">{member.avatar}</span>
+                  <member.avatarComp className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <h3 className="font-heading font-semibold text-sm mb-0.5 group-hover:text-primary transition-colors">{member.name}</h3>
                 <p className="text-xs text-primary font-medium mb-2">{member.role}</p>

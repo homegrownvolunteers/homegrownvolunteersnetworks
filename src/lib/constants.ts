@@ -1,3 +1,5 @@
+import { Sprout, Palette, Drama, Tv, Users, Handshake, Globe, Home, User, Mail, GraduationCap, Briefcase, Video } from "lucide-react";
+
 export const SITE_NAME = "Homegrown Volunteer Network";
 export const SITE_TAGLINE = "From Our Roots, We Rise";
 export const SITE_DESCRIPTION = "A Kenyan community-driven movement celebrating local agriculture, arts, and culture.";
@@ -13,9 +15,9 @@ export const SOCIAL_LINKS = {
 };
 
 export const SECTOR_LINKS = [
-  { label: "Sanaa Arts", href: "/sanaa-arts", icon: "🎨" },
-  { label: "Culture", href: "/culture", icon: "🎭" },
-  { label: "Agriculture", href: "/agriculture", icon: "🌱" },
+  { label: "Sanaa Arts", href: "/sanaa-arts", iconComp: Palette },
+  { label: "Culture", href: "/culture", iconComp: Drama },
+  { label: "Agriculture", href: "/agriculture", iconComp: Sprout },
 ];
 
 export const NAV_LINKS = [
@@ -109,42 +111,42 @@ export const PROGRAMS = [
   {
     title: "Sustainable Agriculture & Food Security",
     description: "Reflecting the relationship between people and the land — sustainability, food security, indigenous farming practices, and the wisdom of communities living in harmony with their environment.",
-    icon: "🌱",
+    iconComp: Sprout,
     link: "/agriculture",
   },
   {
     title: "Sanaa Arts & Creative Economy",
     description: "Expression, storytelling, and imagination — through visual arts, music, performance, and media, communities tell their stories, inspire new thinking, and build creative economies.",
-    icon: "🎨",
+    iconComp: Palette,
     link: "/sanaa-arts",
   },
   {
     title: "Homegrown TV — From Our Roots, We Rise",
     description: "A storytelling platform documenting and amplifying the voices of communities through video, documentaries, interviews, and digital storytelling.",
-    icon: "📺",
+    iconComp: Tv,
     link: "/tv",
   },
   {
     title: "Culture & Identity Preservation",
     description: "Identity, tradition, and collective memory — language, customs, heritage, and the values that shape how communities understand themselves and their place in the world.",
-    icon: "🎭",
+    iconComp: Drama,
     link: "/culture",
   },
   {
     title: "Youth & Volunteer Engagement",
     description: "Mobilizing young people and community actors to drive local solutions as Homegrown Enablers — through storytelling, agriculture, cultural documentation, and creative production.",
-    icon: "🤝",
+    iconComp: Users,
     link: "/get-involved",
   },
 ];
 
 export const TEAM_MEMBERS = [
-  { name: "Hon. Eric Mutwiri Mwirigi", role: "Founder & Visionary", bio: "Driving community transformation through local solutions.", avatar: "👤" },
-  { name: "Amina Wanjiku", role: "Programs Director", bio: "Leading agricultural and arts initiatives across 20+ communities.", avatar: "👩🏾" },
-  { name: "David Mwenda", role: "Head of Agriculture", bio: "Expert in organic farming and sustainable food systems.", avatar: "👨🏾" },
-  { name: "Grace Nyambura", role: "Sanaa Arts Coordinator", bio: "Connecting artists and building Kenya's creative economy.", avatar: "👩🏾‍🎨" },
-  { name: "John Kariuki", role: "Cultural Programs Lead", bio: "Preserving heritage and indigenous knowledge systems.", avatar: "👨🏾‍🏫" },
-  { name: "Fatima Hassan", role: "Community Engagement", bio: "Mobilizing volunteers and strengthening community bonds.", avatar: "👩🏾‍💼" },
-  { name: "Peter Otieno", role: "Media & Communications", bio: "Storytelling through Homegrown TV and digital platforms.", avatar: "🎬" },
-  { name: "Mary Akinyi", role: "Membership & Partnerships", bio: "Growing the network and forging strategic alliances.", avatar: "🤝" },
+  { name: "Hon. Eric Mutwiri Mwirigi", role: "Founder & Visionary", bio: "Driving community transformation through local solutions.", avatarComp: User },
+  { name: "Amina Wanjiku", role: "Programs Director", bio: "Leading agricultural and arts initiatives across 20+ communities.", avatarComp: User },
+  { name: "David Mwenda", role: "Head of Agriculture", bio: "Expert in organic farming and sustainable food systems.", avatarComp: User },
+  { name: "Grace Nyambura", role: "Sanaa Arts Coordinator", bio: "Connecting artists and building Kenya's creative economy.", avatarComp: Palette },
+  { name: "John Kariuki", role: "Cultural Programs Lead", bio: "Preserving heritage and indigenous knowledge systems.", avatarComp: GraduationCap },
+  { name: "Fatima Hassan", role: "Community Engagement", bio: "Mobilizing volunteers and strengthening community bonds.", avatarComp: Briefcase },
+  { name: "Peter Otieno", role: "Media & Communications", bio: "Storytelling through Homegrown TV and digital platforms.", avatarComp: Video },
+  { name: "Mary Akinyi", role: "Membership & Partnerships", bio: "Growing the network and forging strategic alliances.", avatarComp: Handshake },
 ];

@@ -10,15 +10,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { MEMBERSHIP_TIERS, ARTS_SUBCATEGORIES, CULTURE_SUBCATEGORIES, AGRICULTURE_SUBCATEGORIES } from "@/lib/constants";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Sprout, Palette, Drama, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Sector = "agriculture" | "arts" | "culture";
 
 const SECTOR_OPTIONS = [
-  { id: "agriculture" as Sector, icon: "🌱", title: "Agriculture Network", desc: "Join farmers, experts, and advocates." },
-  { id: "arts" as Sector, icon: "🎨", title: "Sanaa Arts Community", desc: "Connect with artists and creatives." },
-  { id: "culture" as Sector, icon: "🎭", title: "Cultural Initiatives", desc: "Preserve heritage and traditions." },
+  { id: "agriculture" as Sector, iconComp: Sprout, title: "Agriculture Network", desc: "Join farmers, experts, and advocates." },
+  { id: "arts" as Sector, iconComp: Palette, title: "Sanaa Arts Community", desc: "Connect with artists and creatives." },
+  { id: "culture" as Sector, iconComp: Drama, title: "Cultural Initiatives", desc: "Preserve heritage and traditions." },
 ];
 
 const SUBCATEGORIES: Record<Sector, string[]> = {
@@ -134,7 +134,9 @@ export default function Membership() {
                       sector === s.id ? "border-primary bg-primary/5 shadow-lg" : "border-border hover:border-primary/40"
                     }`}
                   >
-                    <div className="text-5xl mb-3">{s.icon}</div>
+                    <div className="flex justify-center mb-3">
+                      <s.iconComp className="w-10 h-10 text-primary" />
+                    </div>
                     <h3 className="font-heading font-bold text-lg">{s.title}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{s.desc}</p>
                   </div>
@@ -243,7 +245,9 @@ export default function Membership() {
           {/* Step 6: Success */}
           {step === 6 && (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">📧</div>
+              <div className="flex justify-center mb-4">
+                <Mail className="w-16 h-16 text-primary" />
+              </div>
               <h2 className="text-3xl font-heading font-bold mb-4">Check Your Email!</h2>
               <p className="text-muted-foreground mb-2 max-w-md mx-auto">
                 We've sent a verification link to <strong>{profile.email}</strong>.

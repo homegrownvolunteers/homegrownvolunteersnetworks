@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingCart, ChevronDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NAV_LINKS, SECTOR_LINKS, SITE_NAME } from "@/lib/constants";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -12,6 +13,7 @@ export function Navbar() {
   const [mobileSectorsOpen, setMobileSectorsOpen] = useState(false);
   const location = useLocation();
   const { itemCount } = useCart();
+  const { user, loading } = useAuth();
 
   const isSectorActive = SECTOR_LINKS.some((s) => location.pathname === s.href);
 
@@ -19,7 +21,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="font-heading font-bold text-xl text-primary flex items-center gap-2">
-          <span className="text-2xl">🌱</span>
+          <img src="/assets/images/logo/hvn logo.jpeg" alt="HVN Logo" className="h-10 w-auto" />
           <span className="hidden sm:inline">{SITE_NAME}</span>
           <span className="sm:hidden">HVN</span>
         </Link>
@@ -94,7 +96,6 @@ export function Navbar() {
             </Link>
           ))}
         </nav>
-
         <div className="flex items-center gap-2">
           <Link to="/shop" className="relative">
             <Button variant="ghost" size="icon">
@@ -106,9 +107,17 @@ export function Navbar() {
               )}
             </Button>
           </Link>
-          <Link to="/membership" className="hidden md:block">
-            <Button size="sm">Join HVN</Button>
-          </Link>
+          {!loading && user ? (
+            <Link to="/dashboard">
+              <Button size="sm" variant="default">
+                <User className="h-4 w-4 mr-1" /> Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/membership" className="hidden md:block">
+              <Button size="sm">Join HVN</Button>
+            </Link>
+          )}
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -176,9 +185,17 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link to="/membership" onClick={() => setOpen(false)}>
-              <Button className="w-full mt-2">Join HVN</Button>
-            </Link>
+            {!loading && user ? (
+              <Link to="/dashboard" onClick={() => setOpen(false)}>
+                <Button className="w-full mt-2" size="sm">
+                  <User className="h-4 w-4 mr-1" /> Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/membership" onClick={() => setOpen(false)}>
+                <Button className="w-full mt-2">Join HVN</Button>
+              </Link>
+            )}
           </nav>
         </div>
       )}

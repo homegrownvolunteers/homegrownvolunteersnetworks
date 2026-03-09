@@ -9,7 +9,7 @@ import { PROGRAMS, SHOP_CATEGORIES } from "@/lib/constants";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 import { useParallax } from "@/hooks/useParallax";
-import { Play, ArrowRight, Sprout, Palette, Drama, Heart, Mail } from "lucide-react";
+import { Play, ArrowRight, Sprout, Palette, Drama, Heart, Mail, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { YouTubeEmbed } from "@/components/shared/YouTubeEmbed";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,10 +70,18 @@ export default function Index() {
         <div ref={heroParallax.ref} className="absolute inset-0 opacity-[0.03]" style={{ transform: `translateY(${heroParallax.offset}px)` }}>
           <div className="w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_35px,hsl(var(--primary)/0.15)_35px,hsl(var(--primary)/0.15)_36px)]" />
         </div>
-        <div className="absolute top-20 left-[10%] text-7xl opacity-[0.07] animate-float">🌱</div>
-        <div className="absolute bottom-32 right-[8%] text-6xl opacity-[0.07] animate-float" style={{ animationDelay: "1s" }}>🎨</div>
-        <div className="absolute top-[35%] right-[20%] text-5xl opacity-[0.07] animate-float" style={{ animationDelay: "2s" }}>🎭</div>
-        <div className="absolute bottom-[20%] left-[15%] text-4xl opacity-[0.07] animate-float" style={{ animationDelay: "3s" }}>🤝</div>
+        <div className="absolute top-20 left-[10%] opacity-[0.07]">
+          <Sprout className="w-16 h-16 text-primary animate-float" />
+        </div>
+        <div className="absolute bottom-32 right-[8%] opacity-[0.07]" style={{ animationDelay: "1s" }}>
+          <Palette className="w-14 h-14 text-secondary animate-float" />
+        </div>
+        <div className="absolute top-[35%] right-[20%] opacity-[0.07]" style={{ animationDelay: "2s" }}>
+          <Drama className="w-12 h-12 text-accent animate-float" />
+        </div>
+        <div className="absolute bottom-[20%] left-[15%] opacity-[0.07]" style={{ animationDelay: "3s" }}>
+          <Users className="w-10 h-10 text-primary animate-float" />
+        </div>
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute -bottom-32 -left-20 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
 
@@ -130,13 +138,15 @@ export default function Index() {
           <SectionHeading title="Rooted in Community" subtitle="Inspired by the Harambee spirit, we unite agriculture, arts, and culture to build thriving local economies." />
           <div ref={pillarsStagger.ref} className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: "🌱", title: "Agriculture", desc: "Sustainable farming, food security, and indigenous knowledge preservation.", href: "/agriculture" },
-              { icon: "🎭", title: "Culture", desc: "Heritage documentation, language preservation, and traditional arts.", href: "/culture" },
-              { icon: "🎨", title: "Arts", desc: "Creative economy, artist empowerment, and community expression.", href: "/sanaa-arts" },
+              { iconComp: Sprout, title: "Agriculture", desc: "Sustainable farming, food security, and indigenous knowledge preservation.", href: "/agriculture" },
+              { iconComp: Drama, title: "Culture", desc: "Heritage documentation, language preservation, and traditional arts.", href: "/culture" },
+              { iconComp: Palette, title: "Arts", desc: "Creative economy, artist empowerment, and community expression.", href: "/sanaa-arts" },
             ].map((pillar, i) => (
               <Link key={pillar.title} to={pillar.href}>
                 <div className={cn("text-center p-8 rounded-2xl bg-background hover-lift border border-border/50 opacity-0 cursor-pointer group", pillarsStagger.visibleItems[i] && "animate-stagger-in")}>
-                  <div className="text-5xl mb-4 animate-float" style={{ animationDelay: `${i * 0.7}s` }}>{pillar.icon}</div>
+                  <div className="flex justify-center mb-4 animate-float" style={{ animationDelay: `${i * 0.7}s` }}>
+                    <pillar.iconComp className="w-12 h-12 text-primary" />
+                  </div>
                   <h3 className="font-heading font-semibold text-xl mb-2 group-hover:text-primary transition-colors">{pillar.title}</h3>
                   <p className="text-muted-foreground text-sm">{pillar.desc}</p>
                 </div>
@@ -156,7 +166,9 @@ export default function Index() {
                 <div className={cn("group relative overflow-hidden rounded-2xl border-2 border-border p-8 text-center transition-all duration-300 hover:border-primary hover:-translate-y-2 hover:shadow-2xl bg-card opacity-0", sectorsStagger.visibleItems[i] && "animate-stagger-in")}>
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative z-10">
-                    <div className="text-5xl mb-4">{sector.icon}</div>
+                    <div className="flex justify-center mb-4">
+                      <sector.iconComp className="w-12 h-12 text-primary" />
+                    </div>
                     <h3 className="font-heading font-bold text-xl mb-2 group-hover:text-primary transition-colors">{sector.title}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{sector.description}</p>
                     <Button variant="outline" size="sm">Join Now <ArrowRight className="ml-1 h-3 w-3" /></Button>
@@ -200,7 +212,7 @@ export default function Index() {
             {FEATURED_PRODUCTS.map((product, i) => (
               <div key={product.id} className={cn("group rounded-xl border bg-card overflow-hidden hover-lift opacity-0", productsStagger.visibleItems[i] && "animate-stagger-in")}>
                 <div className="aspect-square bg-muted flex items-center justify-center">
-                  <span className="text-4xl opacity-30 group-hover:scale-110 transition-transform duration-300">🎨</span>
+                  <Palette className="w-10 h-10 text-muted-foreground/30 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <div className="p-4">
                   <h4 className="font-medium text-sm mb-1">{product.name}</h4>

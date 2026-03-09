@@ -64,11 +64,42 @@ export default function HomegrownTV() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("story_submissions").insert([formData]);
-      if (error) throw error;
-      toast.success("Story submitted! We'll review it soon.");
+      // Validate YouTube URL
+      const videoId = extractYouTubeId(formData.video_url);
+      if (!videoId && formData.video_url) {
+        toast.error("Please provide a valid YouTube URL.");
+        setSubmitting(false);
+        return;
+      }
+
+      // If video URL is provided, add directly to tv_episodes
+      if (formData.video_url && videoId) {
+        const newEpisode = {
+          title: formData.title,
+          description: formData.description,
+          video_url: formData.video_url,
+          thumbnail_url: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          category: formData.category,
+          published: true,
+        };
+
+        const { data, error } = await supabase.from("tv_episodes").insert([newEpisode]).select();
+        if (error) throw error;
+
+        // Add to episodes list while keeping existing ones
+        if (data && data.length > 0) {
+          setEpisodes((prev) => [data[0], ...prev]);
+        }
+      }
+
+      // Also save to story_submissions for admin review
+      const { error: submissionError } = await supabase.from("story_submissions").insert([formData]);
+      if (submissionError) throw submissionError;
+
+      toast.success("Story submitted! " + (videoId ? "Episode added to the list!" : "We'll review it soon."));
       setFormData({ name: "", email: "", category: "", title: "", description: "", video_url: "" });
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to submit. Please try again.");
     }
     setSubmitting(false);
@@ -158,7 +189,7 @@ export default function HomegrownTV() {
       {/* Submit Story */}
       <section className="py-20">
         <div className="container max-w-xl">
-          <SectionHeading title="Submit Your Story" subtitle="Have a story to share? Let us know!" />
+          <SectionHeading title="Submit story yako" subtitle="Have a story to share? Let us know!" />
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input placeholder="Your Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
             <Input type="email" placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
