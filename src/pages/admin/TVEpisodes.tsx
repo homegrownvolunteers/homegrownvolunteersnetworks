@@ -143,8 +143,8 @@ export default function TVEpisodes() {
           <div className="space-y-4">
             <div><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
             <div>
-              <Label>YouTube URL</Label>
-              <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://youtube.com/watch?v=..." />
+              <Label>YouTube URL or Embed Code</Label>
+              <Textarea value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder='Paste YouTube URL or <iframe> embed code...' rows={3} />
               {previewThumb && (
                 <div className="mt-2">
                   <p className="text-xs text-muted-foreground mb-1">Auto-generated thumbnail:</p>
