@@ -114,9 +114,14 @@ export function Navbar() {
               </Button>
             </Link>
           ) : (
-            <Link to="/membership" className="hidden md:block">
-              <Button size="sm">Join HVN</Button>
-            </Link>
+            <div className="hidden md:flex gap-2">
+              <Link to="/login">
+                <Button size="sm" variant="outline">Sign In</Button>
+              </Link>
+              <Link to="/membership">
+                <Button size="sm">Join HVN</Button>
+              </Link>
+            </div>
           )}
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
