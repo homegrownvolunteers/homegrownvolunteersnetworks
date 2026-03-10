@@ -76,7 +76,7 @@ export function Navbar() {
                   )}
                   onClick={() => setSectorsOpen(false)}
                 >
-                  <span className="text-lg">{sector.icon}</span>
+                  <sector.iconComp className="h-5 w-5" />
                   {sector.label}
                 </Link>
               ))}
