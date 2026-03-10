@@ -165,7 +165,7 @@ export function Navbar() {
                       location.pathname === sector.href && "text-primary bg-primary/10"
                     )}
                   >
-                    <span>{sector.icon}</span>
+                    <sector.iconComp className="h-4 w-4" />
                     {sector.label}
                   </Link>
                 ))}

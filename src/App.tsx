@@ -24,6 +24,8 @@ import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import MemberLogin from "./pages/auth/MemberLogin";
+import MemberForgotPassword from "./pages/auth/ForgotPassword";
 import AdminLogin from "./pages/admin/Login";
 import AdminRegister from "./pages/admin/Register";
 import ForgotPassword from "./pages/admin/ForgotPassword";
@@ -64,12 +66,15 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
 
+            {/* Member auth */}
+            <Route path="/login" element={<MemberLogin />} />
+            <Route path="/forgot-password" element={<MemberForgotPassword />} />
+
             {/* Admin auth (public) */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/register" element={<AdminRegister />} />
             <Route path="/admin/forgot-password" element={<ForgotPassword />} />
 
-            {/* Admin dashboard (protected) */}
             {/* Admin dashboard (protected) */}
             <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
               <Route path="dashboard" element={<Overview />} />
