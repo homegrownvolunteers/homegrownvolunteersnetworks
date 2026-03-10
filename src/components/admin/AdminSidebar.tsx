@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, FileText, Tv, ClipboardList, Settings, LogOut, Sprout, Shield } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Tv, ClipboardList, Settings, LogOut, Sprout } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 const items = [
   { title: "Overview", url: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Members", url: "/admin/members", icon: Users },
-  { title: "Admin Access", url: "/admin/access", icon: Shield },
   { title: "Content", url: "/admin/content", icon: FileText },
   { title: "TV Episodes", url: "/admin/tv-episodes", icon: Tv },
   { title: "Registrations", url: "/admin/registrations", icon: ClipboardList },

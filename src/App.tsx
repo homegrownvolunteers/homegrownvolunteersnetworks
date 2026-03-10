@@ -26,12 +26,10 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/admin/Login";
 import AdminRegister from "./pages/admin/Register";
-import AdminAccessRequest from "./pages/admin/AdminAccessRequest";
 import ForgotPassword from "./pages/admin/ForgotPassword";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Overview from "./pages/admin/Overview";
 import Members from "./pages/admin/Members";
-import AdminAccess from "./pages/admin/AdminAccess";
 import Content from "./pages/admin/Content";
 import TVEpisodes from "./pages/admin/TVEpisodes";
 import Registrations from "./pages/admin/Registrations";
@@ -69,20 +67,18 @@ const App = () => (
             {/* Admin auth (public) */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/register" element={<AdminRegister />} />
-            <Route path="/admin/request-access" element={<AdminAccessRequest />} />
             <Route path="/admin/forgot-password" element={<ForgotPassword />} />
 
+            {/* Admin dashboard (protected) */}
             {/* Admin dashboard (protected) */}
             <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
               <Route path="dashboard" element={<Overview />} />
               <Route path="members" element={<Members />} />
-              <Route path="access" element={<AdminAccess />} />
               <Route path="content" element={<Content />} />
               <Route path="tv-episodes" element={<TVEpisodes />} />
               <Route path="registrations" element={<Registrations />} />
               <Route path="settings" element={<Settings />} />
             </Route>
-
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

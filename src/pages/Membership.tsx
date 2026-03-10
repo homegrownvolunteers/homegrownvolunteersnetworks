@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { MembershipTierCard } from "@/components/shared/MembershipTierCard";
@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { MEMBERSHIP_TIERS, ARTS_SUBCATEGORIES, CULTURE_SUBCATEGORIES, AGRICULTURE_SUBCATEGORIES } from "@/lib/constants";
+import { useLocation, COUNTRIES, MERU_SUB_COUNTIES, HARDCODED_SUB_COUNTIES, HARDCODED_WARDS } from "@/hooks/useLocation";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Check, Sprout, Palette, Drama, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Sprout, Palette, Drama, Mail, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Sector = "agriculture" | "arts" | "culture";
@@ -39,13 +40,34 @@ export default function Membership() {
   const [tier, setTier] = useState<"free" | "supporter" | "premium">("free");
   const [profile, setProfile] = useState({ name: "", email: "", phone: "", location: "", bio: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
+  
+  // Location state
+  const { counties, subCounties, wards, loadingCounties, loadingSubCounties, loadingWards, fetchCounties, fetchSubCounties, fetchWards, clearSubCounties, clearWards } = useLocation();
+  const [country, setCountry] = useState("Kenya");
+  const [county, setCounty] = useState("");
+  const [subCounty, setSubCounty] = useState("");
+  const [ward, setWard] = useState("");
+  const [otherCountry, setOtherCountry] = useState("");
+  
+  // Load counties on mount
+  useEffect(() => {
+    fetchCounties();
+  }, [fetchCounties]);
 
   const canNext = () => {
     switch (step) {
       case 1: return !!sector;
       case 2: return !!subcategory;
       case 3: return !!tier;
-      case 4: return !!profile.name && !!profile.email && profile.password.length >= 6;
+      case 4: 
+        // Location validation - required if Kenya is selected
+        if (country === "Kenya") {
+          return !!county && !!subCounty && !!ward;
+        } else if (country === "Other") {
+          return !!otherCountry;
+        }
+        return true;
+      case 5: return !!profile.name && !!profile.email && profile.password.length >= 6;
       default: return true;
     }
   };
@@ -65,8 +87,8 @@ export default function Membership() {
       });
       if (authError) throw authError;
 
-      // 2. Insert membership with approved=false
-      const { error: memberError } = await supabase.from("memberships").insert([{
+      // 3. Insert membership with approved=false
+      const membershipData: any = {
         user_id: authData.user?.id,
         sector: sector as "agriculture" | "arts" | "culture",
         subcategory,
@@ -75,10 +97,31 @@ export default function Membership() {
         intent: intent.length > 0 ? intent : null,
         status: "pending" as const,
         approved: false,
-      }]);
-      if (memberError) throw memberError;
+      };
 
-      // 3. Update profile with extra info
+      // Add location fields
+      membershipData.country = country === "Other" ? otherCountry : country;
+      membershipData.county = country === "Kenya" ? county : null;
+      membershipData.sub_county = country === "Kenya" ? subCounty : null;
+      membershipData.ward = country === "Kenya" ? ward : null;
+
+      const { error: memberError } = await supabase.from("memberships").insert([membershipData]);
+      if (memberError) {
+        console.error("Member insert error:", memberError);
+        // If it's a column error, try without location fields
+        if (memberError.message.includes("country") || memberError.message.includes("column")) {
+          delete membershipData.country;
+          delete membershipData.county;
+          delete membershipData.sub_county;
+          delete membershipData.ward;
+          const retryError = await supabase.from("memberships").insert([membershipData]);
+          if (retryError) throw retryError;
+        } else {
+          throw memberError;
+        }
+      }
+
+      // 4. Update profile with extra info
       if (authData.user) {
         await supabase.from("profiles").update({
           phone: profile.phone || null,
@@ -87,7 +130,7 @@ export default function Membership() {
         }).eq("user_id", authData.user.id);
       }
 
-      setStep(6);
+      setStep(7);
     } catch (err: any) {
       toast.error(err.message || "Failed to create account");
     }
@@ -109,14 +152,14 @@ export default function Membership() {
         <div className="container max-w-3xl">
           {/* Progress */}
           <div className="flex items-center justify-center gap-2 mb-12">
-            {[1, 2, 3, 4, 5].map((s) => (
+            {[1, 2, 3, 4, 5, 6].map((s) => (
               <div key={s} className="flex items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                   step > s ? "bg-primary text-primary-foreground" : step === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 }`}>
                   {step > s ? <Check className="h-4 w-4" /> : s}
                 </div>
-                {s < 5 && <div className={`w-8 md:w-16 h-0.5 ${step > s ? "bg-primary" : "bg-muted"}`} />}
+                {s < 6 && <div className={`w-8 md:w-16 h-0.5 ${step > s ? "bg-primary" : "bg-muted"}`} />}
               </div>
             ))}
           </div>
@@ -201,8 +244,190 @@ export default function Membership() {
             </div>
           )}
 
-          {/* Step 4: Profile + Password */}
+          {/* Step 4: Location */}
           {step === 4 && (
+            <div>
+              <SectionHeading title="Your Location" subtitle="Tell us where you're located." />
+              <div className="space-y-4 max-w-md mx-auto">
+                {/* Country */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Country *</label>
+                  <Select value={country} onValueChange={(val) => {
+                    setCountry(val);
+                    clearSubCounties();
+                    clearWards();
+                    setCounty("");
+                    setSubCounty("");
+                    setWard("");
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map((c) => (
+                        <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Other country input */}
+                {country === "Other" && (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Specify Country *</label>
+                    <Input 
+                      placeholder="Enter your country" 
+                      value={otherCountry} 
+                      onChange={(e) => setOtherCountry(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                )}
+
+                {/* Kenya-specific location fields */}
+                {country === "Kenya" && (
+                  <>
+                    {/* County */}
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">County *</label>
+                      <Select 
+                        value={county} 
+                        onValueChange={(val) => {
+                          setCounty(val);
+                          clearSubCounties();
+                          clearWards();
+                          setSubCounty("");
+                          setWard("");
+                          // Find county and fetch sub-counties
+                          const selectedCounty = counties.find(c => c.name === val);
+                          if (selectedCounty) {
+                            fetchSubCounties(selectedCounty.id);
+                          }
+                        }}
+                        disabled={loadingCounties}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={loadingCounties ? "Loading..." : "Select county"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {counties.map((c) => (
+                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Sub-County - with fallback data */}
+                    {county && (
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Sub-County *</label>
+                        <Select 
+                          value={subCounty} 
+                          onValueChange={(val) => {
+                            setSubCounty(val);
+                            clearWards();
+                            setWard("");
+                            // Find sub-county and fetch wards
+                            const selectedSub = subCounties.find(s => s.name === val);
+                            if (selectedSub) {
+                              fetchWards(selectedSub.id);
+                            } else {
+                              // Try to find in fallback data
+                              const fallbackSub = MERU_SUB_COUNTIES.find(s => s.name === val);
+                              if (fallbackSub) {
+                                fetchWards(fallbackSub.id);
+                              }
+                            }
+                          }}
+                          disabled={loadingSubCounties}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={loadingSubCounties ? "Loading..." : "Select sub-county"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {subCounties.length > 0 ? subCounties.map((sc) => (
+                              <SelectItem key={sc.id} value={sc.name}>{sc.name}</SelectItem>
+                            )) : (
+                              // Show fallback sub-counties - need to find the county_id first
+                              (() => {
+                                const selectedCountyObj = counties.find(c => c.name === county);
+                                const countyId = selectedCountyObj?.id || 1;
+                                return HARDCODED_SUB_COUNTIES.filter(sc => sc.county_id === countyId).map((sc) => (
+                                  <SelectItem key={sc.id} value={sc.name}>{sc.name}</SelectItem>
+                                ));
+                              })()
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {/* Ward - with fallback data */}
+                    {subCounty && (
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Ward *</label>
+                        <Select 
+                          value={ward} 
+                          onValueChange={setWard}
+                          disabled={loadingWards}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={loadingWards ? "Loading..." : "Select ward"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {wards.length > 0 ? wards.map((w) => (
+                              <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
+                            )) : (
+                              // Show fallback wards based on selected sub-county
+                              (() => {
+                                // First try to find the sub-county in the database-loaded subCounties
+                                const selectedSub = subCounties.find(s => s.name === subCounty);
+                                let subCountyId = selectedSub?.id;
+                                
+                                // If not found, try the fallback data
+                                if (!subCountyId) {
+                                  const fallbackSub = HARDCODED_SUB_COUNTIES.find(s => s.name === subCounty);
+                                  subCountyId = fallbackSub?.id;
+                                }
+                                
+                                // Filter wards by the found sub-county ID
+                                if (subCountyId) {
+                                  const filteredWards = HARDCODED_WARDS.filter(w => w.sub_county_id === subCountyId);
+                                  return filteredWards.map((w) => (
+                                    <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
+                                  ));
+                                }
+                                return null;
+                              })()
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Location summary */}
+                {(country === "Kenya" && county && subCounty && ward) && (
+                  <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">
+                      {ward}, {subCounty}, {county}, {country}
+                    </span>
+                  </div>
+                )}
+                {(country === "Other" && otherCountry) && (
+                  <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">{otherCountry}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Profile + Password */}
+          {step === 5 && (
             <div>
               <SectionHeading title="Your Profile" subtitle="Create your account to join." />
               <div className="space-y-4 max-w-md mx-auto">
@@ -215,14 +440,13 @@ export default function Membership() {
                   )}
                 </div>
                 <Input placeholder="Phone" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
-                <Input placeholder="Location" value={profile.location} onChange={(e) => setProfile({ ...profile, location: e.target.value })} />
                 <Textarea placeholder="Short bio" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} />
               </div>
             </div>
           )}
 
-          {/* Step 5: Review */}
-          {step === 5 && (
+          {/* Step 6: Review */}
+          {step === 6 && (
             <div>
               <SectionHeading title="Review & Confirm" subtitle="Make sure everything looks right." />
               <div className="bg-card rounded-xl border p-6 max-w-md mx-auto space-y-3">
@@ -232,6 +456,13 @@ export default function Membership() {
                 <div><span className="text-sm text-muted-foreground">Tier:</span> <span className="font-medium capitalize">{tier}</span></div>
                 <div><span className="text-sm text-muted-foreground">Name:</span> <span className="font-medium">{profile.name}</span></div>
                 <div><span className="text-sm text-muted-foreground">Email:</span> <span className="font-medium">{profile.email}</span></div>
+                {/* Location */}
+                {country === "Kenya" && county && (
+                  <div><span className="text-sm text-muted-foreground">Location:</span> <span className="font-medium">{ward ? `${ward}, ` : ''}{subCounty}, {county}, Kenya</span></div>
+                )}
+                {country === "Other" && otherCountry && (
+                  <div><span className="text-sm text-muted-foreground">Location:</span> <span className="font-medium">{otherCountry}</span></div>
+                )}
                 {tier !== "free" && (
                   <div className="pt-3 border-t">
                     <p className="text-sm text-muted-foreground">Payment: KES {MEMBERSHIP_TIERS.find((t) => t.id === tier)?.price?.toLocaleString()}/month</p>
@@ -242,8 +473,8 @@ export default function Membership() {
             </div>
           )}
 
-          {/* Step 6: Success */}
-          {step === 6 && (
+          {/* Step 7: Success */}
+          {step === 7 && (
             <div className="text-center py-12">
               <div className="flex justify-center mb-4">
                 <Mail className="w-16 h-16 text-primary" />
@@ -262,12 +493,12 @@ export default function Membership() {
           )}
 
           {/* Navigation */}
-          {step >= 1 && step <= 5 && (
+          {step >= 1 && step <= 6 && (
             <div className="flex justify-between mt-12">
               <Button variant="outline" onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
-              {step < 5 ? (
+              {step < 6 ? (
                 <Button onClick={() => setStep(step + 1)} disabled={!canNext()}>
                   Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
