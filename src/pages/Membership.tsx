@@ -99,23 +99,35 @@ export default function Membership() {
         approved: false,
       };
 
-      // Add location fields
-      membershipData.country = country === "Other" ? otherCountry : country;
-      membershipData.county = country === "Kenya" ? county : null;
-      membershipData.sub_county = country === "Kenya" ? subCounty : null;
-      membershipData.ward = country === "Kenya" ? ward : null;
+      // Try adding location fields (will be ignored if columns don't exist yet)
+      if (country === "Kenya") {
+        membershipData.country = "Kenya";
+        membershipData.county = county || null;
+        membershipData.sub_county = subCounty || null;
+        membershipData.ward = ward || null;
+      } else if (country === "Other") {
+        membershipData.country = otherCountry;
+      } else {
+        membershipData.country = country;
+      }
 
-      const { error: memberError } = await supabase.from("memberships").insert([membershipData]);
+      // Try with location fields first
+      let { error: memberError } = await supabase.from("memberships").insert([membershipData]);
+      
       if (memberError) {
-        console.error("Member insert error:", memberError);
+        console.error("Member insert error (with location):", memberError);
         // If it's a column error, try without location fields
-        if (memberError.message.includes("country") || memberError.message.includes("column")) {
+        if (memberError.message.includes("country") || memberError.message.includes("sub_county") || memberError.message.includes("county") || memberError.message.includes("ward") || memberError.message.includes("column")) {
+          console.log("Retrying without location fields...");
           delete membershipData.country;
           delete membershipData.county;
           delete membershipData.sub_county;
           delete membershipData.ward;
-          const retryError = await supabase.from("memberships").insert([membershipData]);
-          if (retryError) throw retryError;
+          const { error: retryError } = await supabase.from("memberships").insert([membershipData]);
+          if (retryError) {
+            console.error("Member insert error (without location):", retryError);
+            throw retryError;
+          }
         } else {
           throw memberError;
         }
@@ -123,16 +135,28 @@ export default function Membership() {
 
       // 4. Update profile with extra info
       if (authData.user) {
-        await supabase.from("profiles").update({
+        const { error: profileError } = await supabase.from("profiles").update({
           phone: profile.phone || null,
           location: profile.location || null,
           bio: profile.bio || null,
         }).eq("user_id", authData.user.id);
+        if (profileError) {
+          console.error("Profile update error:", profileError);
+          throw profileError;
+        }
       }
 
       setStep(7);
     } catch (err: any) {
-      toast.error(err.message || "Failed to create account");
+      const errorMessage = err.message || err.error || "Failed to create account";
+      console.error("Registration error details:", {
+        message: errorMessage,
+        status: err.status,
+        statusText: err.statusText,
+        details: err.details,
+        hint: err.hint
+      });
+      toast.error(errorMessage);
     }
     setSubmitting(false);
   };
