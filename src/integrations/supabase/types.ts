@@ -556,6 +556,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_membership: {
+        Args: {
+          p_approved?: boolean
+          p_intent?: string[]
+          p_sector: Database["public"]["Enums"]["membership_sector"]
+          p_skill_level?: string
+          p_status?: Database["public"]["Enums"]["membership_status"]
+          p_subcategory: string
+          p_tier?: Database["public"]["Enums"]["membership_tier"]
+          p_user_id: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
