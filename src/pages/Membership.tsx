@@ -87,50 +87,21 @@ export default function Membership() {
       });
       if (authError) throw authError;
 
-      // 3. Insert membership with approved=false
-      const membershipData: any = {
-        user_id: authData.user?.id,
-        sector: sector as "agriculture" | "arts" | "culture",
-        subcategory,
-        tier,
-        skill_level: skillLevel || null,
-        intent: intent.length > 0 ? intent : null,
-        status: "pending" as const,
-        approved: false,
-      };
+      // 3. Insert membership using security definer function (bypasses RLS for unconfirmed users)
+      const { error: memberError } = await supabase.rpc("create_membership", {
+        p_user_id: authData.user?.id,
+        p_sector: sector as "agriculture" | "arts" | "culture",
+        p_subcategory: subcategory,
+        p_tier: tier,
+        p_skill_level: skillLevel || null,
+        p_intent: intent.length > 0 ? intent : null,
+        p_status: "pending" as const,
+        p_approved: false,
+      });
 
-      // Try adding location fields (will be ignored if columns don't exist yet)
-      if (country === "Kenya") {
-        membershipData.country = "Kenya";
-        membershipData.county = county || null;
-        membershipData.sub_county = subCounty || null;
-        membershipData.ward = ward || null;
-      } else if (country === "Other") {
-        membershipData.country = otherCountry;
-      } else {
-        membershipData.country = country;
-      }
-
-      // Try with location fields first
-      let { error: memberError } = await supabase.from("memberships").insert([membershipData]);
-      
       if (memberError) {
-        console.error("Member insert error (with location):", memberError);
-        // If it's a column error, try without location fields
-        if (memberError.message.includes("country") || memberError.message.includes("sub_county") || memberError.message.includes("county") || memberError.message.includes("ward") || memberError.message.includes("column")) {
-          console.log("Retrying without location fields...");
-          delete membershipData.country;
-          delete membershipData.county;
-          delete membershipData.sub_county;
-          delete membershipData.ward;
-          const { error: retryError } = await supabase.from("memberships").insert([membershipData]);
-          if (retryError) {
-            console.error("Member insert error (without location):", retryError);
-            throw retryError;
-          }
-        } else {
-          throw memberError;
-        }
+        console.error("Member insert error:", memberError);
+        throw memberError;
       }
 
       // 4. Update profile with extra info
