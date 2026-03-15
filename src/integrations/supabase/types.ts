@@ -576,6 +576,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_profile_on_signup: {
+        Args: {
+          p_bio?: string
+          p_location?: string
+          p_phone?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

@@ -104,16 +104,27 @@ export default function Membership() {
         throw memberError;
       }
 
-      // 4. Update profile with extra info
+      // 4. Update profile with extra info using security definer function
       if (authData.user) {
-        const { error: profileError } = await supabase.from("profiles").update({
-          phone: profile.phone || null,
-          location: profile.location || null,
-          bio: profile.bio || null,
-        }).eq("user_id", authData.user.id);
+        // Build location string from county/sub-county/ward
+        let locationStr = "";
+        if (country === "Kenya" && county) {
+          locationStr = [county, subCounty, ward].filter(Boolean).join(", ") + ", Kenya";
+        } else if (country === "Other" && otherCountry) {
+          locationStr = otherCountry;
+        } else if (country && country !== "Kenya" && country !== "Other") {
+          locationStr = country;
+        }
+
+        const { error: profileError } = await supabase.rpc("update_profile_on_signup", {
+          p_user_id: authData.user.id,
+          p_phone: profile.phone || null,
+          p_location: locationStr || null,
+          p_bio: profile.bio || null,
+        });
         if (profileError) {
           console.error("Profile update error:", profileError);
-          throw profileError;
+          // Non-critical - don't throw, membership was already created
         }
       }
 
