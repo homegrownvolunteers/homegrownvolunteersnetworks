@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { MEMBERSHIP_TIERS, ARTS_SUBCATEGORIES, CULTURE_SUBCATEGORIES, AGRICULTURE_SUBCATEGORIES } from "@/lib/constants";
-import { useLocation, COUNTRIES, MERU_SUB_COUNTIES, HARDCODED_SUB_COUNTIES, HARDCODED_WARDS } from "@/hooks/useLocation";
+import { useLocation, COUNTRIES, HARDCODED_SUB_COUNTIES, HARDCODED_WARDS, COUNTIES_WITH_WARDS } from "@/hooks/useLocation";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Check, Sprout, Palette, Drama, Mail, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
