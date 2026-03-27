@@ -333,16 +333,18 @@ export default function Membership() {
                             setSubCounty(val);
                             clearWards();
                             setWard("");
-                            // Find sub-county and fetch wards
-                            const selectedSub = subCounties.find(s => s.name === val);
-                            if (selectedSub) {
-                              fetchWards(selectedSub.id);
-                            } else {
-                              // Try to find in fallback data
-                              const fallbackSub = MERU_SUB_COUNTIES.find(s => s.name === val);
-                              if (fallbackSub) {
-                                fetchWards(fallbackSub.id);
-                              }
+                            // Find sub-county and fetch wards (only for counties with ward data)
+                            const selectedCountyObj2 = counties.find(c => c.name === county);
+                            const hasWardData = selectedCountyObj2 && COUNTIES_WITH_WARDS.includes(selectedCountyObj2.id);
+                            if (hasWardData) {
+                              const selectedSub = subCounties.find(s => s.name === val);
+                              if (selectedSub) {
+                                fetchWards(selectedSub.id);
+                              } else {
+                                const fallbackSub = HARDCODED_SUB_COUNTIES.find(s => s.name === val);
+                                if (fallbackSub) {
+                                  fetchWards(fallbackSub.id);
+                                }
                             }
                           }}
                           disabled={loadingSubCounties}
