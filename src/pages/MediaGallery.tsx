@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import Layout from "@/components/layout/Layout";
+import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";

@@ -280,7 +280,7 @@ export default function AdminMedia() {
                 </Button>
               </div>
               {!item.published && (
-                <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded">Draft</div>
+                <div className="absolute top-2 left-2 bg-accent text-accent-foreground text-xs px-2 py-0.5 rounded">Draft</div>
               )}
             </div>
           ))}
