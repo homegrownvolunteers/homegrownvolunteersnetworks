@@ -333,7 +333,6 @@ export default function Membership() {
                             setSubCounty(val);
                             clearWards();
                             setWard("");
-                            // Find sub-county and fetch wards (only for counties with ward data)
                             const selectedCountyObj2 = counties.find(c => c.name === county);
                             const hasWardData = selectedCountyObj2 && COUNTIES_WITH_WARDS.includes(selectedCountyObj2.id);
                             if (hasWardData) {
@@ -345,6 +344,7 @@ export default function Membership() {
                                 if (fallbackSub) {
                                   fetchWards(fallbackSub.id);
                                 }
+                              }
                             }
                           }}
                           disabled={loadingSubCounties}
@@ -356,7 +356,6 @@ export default function Membership() {
                             {subCounties.length > 0 ? subCounties.map((sc) => (
                               <SelectItem key={sc.id} value={sc.name}>{sc.name}</SelectItem>
                             )) : (
-                              // Show fallback sub-counties - need to find the county_id first
                               (() => {
                                 const selectedCountyObj = counties.find(c => c.name === county);
                                 const countyId = selectedCountyObj?.id || 1;
@@ -370,48 +369,51 @@ export default function Membership() {
                       </div>
                     )}
 
-                    {/* Ward - with fallback data */}
-                    {subCounty && (
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Ward *</label>
-                        <Select 
-                          value={ward} 
-                          onValueChange={setWard}
-                          disabled={loadingWards}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder={loadingWards ? "Loading..." : "Select ward"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {wards.length > 0 ? wards.map((w) => (
-                              <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
-                            )) : (
-                              // Show fallback wards based on selected sub-county
-                              (() => {
-                                // First try to find the sub-county in the database-loaded subCounties
-                                const selectedSub = subCounties.find(s => s.name === subCounty);
-                                let subCountyId = selectedSub?.id;
-                                
-                                // If not found, try the fallback data
-                                if (!subCountyId) {
-                                  const fallbackSub = HARDCODED_SUB_COUNTIES.find(s => s.name === subCounty);
-                                  subCountyId = fallbackSub?.id;
-                                }
-                                
-                                // Filter wards by the found sub-county ID
-                                if (subCountyId) {
-                                  const filteredWards = HARDCODED_WARDS.filter(w => w.sub_county_id === subCountyId);
-                                  return filteredWards.map((w) => (
-                                    <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
-                                  ));
-                                }
-                                return null;
-                              })()
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
+                    {/* Ward */}
+                    {subCounty && (() => {
+                      const selectedCountyObj = counties.find(c => c.name === county);
+                      const hasWardDropdown = selectedCountyObj && COUNTIES_WITH_WARDS.includes(selectedCountyObj.id);
+                      
+                      if (hasWardDropdown) {
+                        // Show dropdown for Meru, Tharaka-Nithi, Laikipia, Isiolo, Embu
+                        const selectedSub = subCounties.find(s => s.name === subCounty);
+                        let subCountyId = selectedSub?.id;
+                        if (!subCountyId) {
+                          const fallbackSub = HARDCODED_SUB_COUNTIES.find(s => s.name === subCounty);
+                          subCountyId = fallbackSub?.id;
+                        }
+                        const wardOptions = wards.length > 0 ? wards : HARDCODED_WARDS.filter(w => w.sub_county_id === subCountyId);
+                        
+                        return (
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Ward *</label>
+                            <Select value={ward} onValueChange={setWard} disabled={loadingWards}>
+                              <SelectTrigger>
+                                <SelectValue placeholder={loadingWards ? "Loading..." : "Select ward"} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {wardOptions.map((w) => (
+                                  <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      } else {
+                        // Text input for other counties
+                        return (
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Ward *</label>
+                            <Input 
+                              placeholder="Enter your ward" 
+                              value={ward} 
+                              onChange={(e) => setWard(e.target.value)} 
+                              required 
+                            />
+                          </div>
+                        );
+                      }
+                    })()}
                   </>
                 )}
 
