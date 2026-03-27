@@ -25,6 +25,7 @@ export const NAV_LINKS = [
   { label: "About", href: "/about" },
   { label: "Programs", href: "/programs" },
   { label: "Homegrown TV", href: "/tv" },
+  { label: "Media", href: "/media" },
   { label: "Blog", href: "/blog" },
   { label: "Stories", href: "/stories" },
   { label: "Get Involved", href: "/get-involved" },

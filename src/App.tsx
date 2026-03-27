@@ -36,6 +36,8 @@ import Content from "./pages/admin/Content";
 import TVEpisodes from "./pages/admin/TVEpisodes";
 import Registrations from "./pages/admin/Registrations";
 import Settings from "./pages/admin/Settings";
+import AdminMedia from "./pages/admin/Media";
+import MediaGallery from "./pages/MediaGallery";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +62,7 @@ const App = () => (
             <Route path="/donate" element={<Donate />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/membership" element={<Membership />} />
+            <Route path="/media" element={<MediaGallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -82,6 +85,7 @@ const App = () => (
               <Route path="content" element={<Content />} />
               <Route path="tv-episodes" element={<TVEpisodes />} />
               <Route path="registrations" element={<Registrations />} />
+              <Route path="media" element={<AdminMedia />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
